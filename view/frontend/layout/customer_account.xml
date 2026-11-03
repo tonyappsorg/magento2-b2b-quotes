@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="customer_account_navigation">
+            <block class="Tonyapps\B2bQuotes\Block\Account\QuotesLink" name="tonyapps.b2b.quotes.nav">
+                <arguments>
+                    <argument name="label" xsi:type="string" translate="true">My Quotes</argument>
+                    <argument name="path" xsi:type="string">b2bquotes/quote/index</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
+    </body>
+</page>

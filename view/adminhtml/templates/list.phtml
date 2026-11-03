@@ -1,0 +1,42 @@
+<?php
+/** @var \Tonyapps\B2bQuotes\Block\Adminhtml\Listing $block */
+/** @var \Magento\Framework\Escaper $escaper */
+/** @var \Tonyapps\B2bQuotes\ViewModel\QuoteDetails $details */
+$details = $block->getData('details');
+$quotes = $block->getQuotes();
+?>
+<table class="data-grid">
+    <thead><tr>
+        <th class="data-grid-th"><?= $escaper->escapeHtml(__('Quote')) ?></th>
+        <th class="data-grid-th"><?= $escaper->escapeHtml(__('Company')) ?></th>
+        <th class="data-grid-th"><?= $escaper->escapeHtml(__('Buyer')) ?></th>
+        <th class="data-grid-th"><?= $escaper->escapeHtml(__('Status')) ?></th>
+        <th class="data-grid-th"><?= $escaper->escapeHtml(__('Requested')) ?></th>
+        <th class="data-grid-th"><?= $escaper->escapeHtml(__('Offered')) ?></th>
+        <th class="data-grid-th"><?= $escaper->escapeHtml(__('Valid Until')) ?></th>
+        <th class="data-grid-th"><?= $escaper->escapeHtml(__('Updated')) ?></th>
+    </tr></thead>
+    <tbody>
+    <?php foreach ($quotes as $quote): ?>
+        <tr>
+            <td><a href="<?= $escaper->escapeUrl($block->getUrl('*/*/edit', ['id' => (int)$quote['entity_id']])) ?>">#<?= (int)$quote['entity_id'] ?></a></td>
+            <td><?= $escaper->escapeHtml((string)$quote['company_name']) ?></td>
+            <td><?= $escaper->escapeHtml($quote['customer_name']) ?><br><?= $escaper->escapeHtml($quote['customer_email']) ?></td>
+            <td><?= $escaper->escapeHtml($details->getStatusLabel($details->getStatus($quote))) ?></td>
+            <td><?= $escaper->escapeHtml($details->formatPrice($quote['base_request_subtotal'], $quote)) ?></td>
+            <td><?= $escaper->escapeHtml($details->formatPrice($quote['base_offer_subtotal'], $quote)) ?></td>
+            <td><?= $escaper->escapeHtml((string)$quote['expires_at']) ?></td>
+            <td><?= $escaper->escapeHtml((string)$quote['updated_at']) ?></td>
+        </tr>
+    <?php endforeach; ?>
+    <?php if (!$quotes): ?>
+        <tr><td colspan="8"><?= $escaper->escapeHtml(__('No quote requests yet.')) ?></td></tr>
+    <?php endif; ?>
+    </tbody>
+</table>
+<?php if ($url = $block->getPreviousPageUrl()): ?>
+    <a href="<?= $escaper->escapeUrl($url) ?>"><?= $escaper->escapeHtml(__('Previous')) ?></a>
+<?php endif; ?>
+<?php if ($url = $block->getNextPageUrl()): ?>
+    <a href="<?= $escaper->escapeUrl($url) ?>"><?= $escaper->escapeHtml(__('Next')) ?></a>
+<?php endif; ?>

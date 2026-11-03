@@ -1,0 +1,12 @@
+<!--@subject {{trans "Your quote #%id: %message" id=$quote_id message=$message}} @-->
+<!--@vars {
+"var quote_id":"Quote ID",
+"var message":"What happened",
+"var comment":"Latest comment",
+"var buyer_name":"Buyer name",
+"var quote_url":"Quote page URL"
+} @-->
+<p>{{trans "Hello %name," name=$buyer_name}}</p>
+<p>{{trans "%message" message=$message}}</p>
+{{depend comment}}<p>{{trans "Comment from the seller:"}}<br>{{var comment}}</p>{{/depend}}
+<p><a href="{{var quote_url}}">{{trans "View quote #%id" id=$quote_id}}</a></p>

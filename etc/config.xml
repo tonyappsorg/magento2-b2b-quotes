@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <tonyapps_b2b_quotes>
+            <general>
+                <enabled>0</enabled>
+                <expiry_days>30</expiry_days>
+                <notify_email/>
+            </general>
+            <email>
+                <seller_template>tonyapps_b2b_quotes_email_seller_template</seller_template>
+                <buyer_template>tonyapps_b2b_quotes_email_buyer_template</buyer_template>
+            </email>
+        </tonyapps_b2b_quotes>
+    </default>
+</config>

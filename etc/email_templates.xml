@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Email:etc/email_templates.xsd">
+    <template id="tonyapps_b2b_quotes_email_seller_template" label="B2B Quote Notice (seller)" file="seller_notice.html" type="html" module="Tonyapps_B2bQuotes" area="frontend"/>
+    <template id="tonyapps_b2b_quotes_email_buyer_template" label="B2B Quote Notice (buyer)" file="buyer_notice.html" type="html" module="Tonyapps_B2bQuotes" area="frontend"/>
+</config>

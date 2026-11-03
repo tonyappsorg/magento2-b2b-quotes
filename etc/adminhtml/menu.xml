@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Tonyapps_B2bQuotes::quotes" title="B2B Quotes" translate="title" module="Tonyapps_B2bQuotes"
+             sortOrder="60" parent="Magento_Sales::sales_operation" action="tonyapps_b2bquotes/quote/index"
+             resource="Tonyapps_B2bQuotes::quotes"/>
+    </menu>
+</config>

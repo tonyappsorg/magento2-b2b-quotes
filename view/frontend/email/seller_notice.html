@@ -1,0 +1,12 @@
+<!--@subject {{trans "B2B quote #%id: %message" id=$quote_id message=$message}} @-->
+<!--@vars {
+"var quote_id":"Quote ID",
+"var message":"What happened",
+"var comment":"Latest comment",
+"var company_name":"Company name",
+"var buyer_name":"Buyer name"
+} @-->
+<p>{{trans "%message" message=$message}}</p>
+<p>{{trans "Quote #%id from %buyer (%company)." id=$quote_id buyer=$buyer_name company=$company_name}}</p>
+{{depend comment}}<p>{{trans "Comment:"}}<br>{{var comment}}</p>{{/depend}}
+<p>{{trans "Open Sales > B2B Quotes in the admin panel to answer."}}</p>

@@ -1,0 +1,63 @@
+{
+    "tonyapps_b2b_quote": {
+        "column": {
+            "entity_id": true,
+            "company_id": true,
+            "customer_id": true,
+            "customer_name": true,
+            "customer_email": true,
+            "website_id": true,
+            "store_id": true,
+            "base_currency_code": true,
+            "status": true,
+            "expires_at": true,
+            "base_request_subtotal": true,
+            "base_offer_subtotal": true,
+            "cart_id": true,
+            "order_id": true,
+            "created_at": true,
+            "updated_at": true
+        },
+        "index": {
+            "TONYAPPS_B2B_QUOTE_COMPANY_ID": true,
+            "TONYAPPS_B2B_QUOTE_CUSTOMER_ID": true,
+            "TONYAPPS_B2B_QUOTE_STATUS": true,
+            "TONYAPPS_B2B_QUOTE_CART_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    },
+    "tonyapps_b2b_quote_item": {
+        "column": {
+            "item_id": true,
+            "quote_id": true,
+            "product_id": true,
+            "sku": true,
+            "name": true,
+            "buy_request": true,
+            "qty": true,
+            "base_catalog_price": true,
+            "base_negotiated_price": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "TONYAPPS_B2B_QUOTE_ITEM_QUOTE_ID_TONYAPPS_B2B_QUOTE_ENTITY_ID": true
+        }
+    },
+    "tonyapps_b2b_quote_history": {
+        "column": {
+            "entry_id": true,
+            "quote_id": true,
+            "author_type": true,
+            "author_id": true,
+            "comment": true,
+            "status": true,
+            "created_at": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "TONYAPPS_B2B_QUOTE_HISTORY_QUOTE_ID_TONYAPPS_B2B_QUOTE_ENTITY_ID": true
+        }
+    }
+}

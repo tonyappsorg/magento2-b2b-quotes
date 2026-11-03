@@ -1,0 +1,23 @@
+<?php
+/** @var \Tonyapps\B2bQuotes\Block\Cart\RequestQuote $block */
+/** @var \Magento\Framework\Escaper $escaper */
+?>
+<?php if ($block->canRequest()): ?>
+    <div class="b2b-quotes-request">
+        <?php if ($unsupported = $block->getUnsupportedItems()): ?>
+            <p><?= $escaper->escapeHtml(__('To request a quote, remove the products that cannot be quoted: %1.', implode(', ', $unsupported))) ?></p>
+        <?php else: ?>
+            <details>
+                <summary><?= $escaper->escapeHtml(__('Request a quote for this cart')) ?></summary>
+                <form action="<?= $escaper->escapeUrl($block->getSubmitUrl()) ?>" method="post">
+                    <?= $block->getBlockHtml('formkey') ?>
+                    <label for="b2b-quote-comment"><?= $escaper->escapeHtml(__('What would you like quoted?')) ?></label>
+                    <textarea id="b2b-quote-comment" name="comment" rows="3" maxlength="2000" required></textarea>
+                    <button type="submit" class="action secondary">
+                        <span><?= $escaper->escapeHtml(__('Request a Quote')) ?></span>
+                    </button>
+                </form>
+            </details>
+        <?php endif; ?>
+    </div>
+<?php endif; ?>

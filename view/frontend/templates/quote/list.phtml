@@ -1,0 +1,47 @@
+<?php
+/** @var \Tonyapps\B2bQuotes\Block\Quote\Listing $block */
+/** @var \Magento\Framework\Escaper $escaper */
+/** @var \Tonyapps\B2bQuotes\ViewModel\QuoteDetails $details */
+$details = $block->getData('details');
+$quotes = $block->getQuotes();
+?>
+<div class="b2b-quotes-list">
+    <?php if ($quotes): ?>
+        <table class="data table">
+            <thead><tr>
+                <th><?= $escaper->escapeHtml(__('Quote')) ?></th>
+                <?php if ($block->isCompanyView()): ?><th><?= $escaper->escapeHtml(__('Buyer')) ?></th><?php endif; ?>
+                <th><?= $escaper->escapeHtml(__('Status')) ?></th>
+                <th><?= $escaper->escapeHtml(__('Requested')) ?></th>
+                <th><?= $escaper->escapeHtml(__('Offered')) ?></th>
+                <th><?= $escaper->escapeHtml(__('Valid Until')) ?></th>
+                <th><?= $escaper->escapeHtml(__('Updated')) ?></th>
+            </tr></thead>
+            <tbody>
+            <?php foreach ($quotes as $quote): ?>
+                <tr>
+                    <td><a href="<?= $escaper->escapeUrl($block->getViewUrl($quote)) ?>">#<?= (int)$quote['entity_id'] ?></a></td>
+                    <?php if ($block->isCompanyView()): ?><td><?= $escaper->escapeHtml($quote['customer_name'] ?: $quote['customer_email']) ?></td><?php endif; ?>
+                    <td><?= $escaper->escapeHtml($details->getStatusLabel($details->getStatus($quote))) ?></td>
+                    <td><?= $escaper->escapeHtml($details->formatPrice($quote['base_request_subtotal'], $quote)) ?></td>
+                    <td><?= $escaper->escapeHtml($details->formatPrice($quote['base_offer_subtotal'], $quote)) ?></td>
+                    <td><?= $escaper->escapeHtml((string)$quote['expires_at']) ?></td>
+                    <td><?= $escaper->escapeHtml((string)$quote['updated_at']) ?></td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+        <?php if ($block->getPreviousPageUrl() || $block->getNextPageUrl()): ?>
+            <div class="actions-toolbar">
+                <?php if ($url = $block->getPreviousPageUrl()): ?>
+                    <a class="action previous" href="<?= $escaper->escapeUrl($url) ?>"><?= $escaper->escapeHtml(__('Previous')) ?></a>
+                <?php endif; ?>
+                <?php if ($url = $block->getNextPageUrl()): ?>
+                    <a class="action next" href="<?= $escaper->escapeUrl($url) ?>"><?= $escaper->escapeHtml(__('Next')) ?></a>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+    <?php else: ?>
+        <div class="message info"><span><?= $escaper->escapeHtml(__('You have no quotes yet. Request one from the shopping cart.')) ?></span></div>
+    <?php endif; ?>
+</div>

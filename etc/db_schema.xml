@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="tonyapps_b2b_quote" resource="default" engine="innodb" comment="B2B Negotiable Quotes">
+        <column xsi:type="int" name="entity_id" unsigned="true" nullable="false" identity="true" comment="Quote ID"/>
+        <column xsi:type="int" name="company_id" unsigned="true" nullable="false" comment="Company ID"/>
+        <column xsi:type="int" name="customer_id" unsigned="true" nullable="false" comment="Buyer Customer ID"/>
+        <column xsi:type="varchar" name="customer_name" nullable="false" length="255" comment="Buyer Name"/>
+        <column xsi:type="varchar" name="customer_email" nullable="false" length="255" comment="Buyer Email"/>
+        <column xsi:type="smallint" name="website_id" unsigned="true" nullable="false" comment="Website ID"/>
+        <column xsi:type="smallint" name="store_id" unsigned="true" nullable="false" comment="Store ID"/>
+        <column xsi:type="varchar" name="base_currency_code" nullable="false" length="3" comment="Base Currency"/>
+        <column xsi:type="varchar" name="status" nullable="false" length="16" default="open" comment="Status"/>
+        <column xsi:type="date" name="expires_at" nullable="true" comment="Offer Expiry Date"/>
+        <column xsi:type="decimal" name="base_request_subtotal" precision="20" scale="4" nullable="false" default="0" comment="Requested Base Subtotal"/>
+        <column xsi:type="decimal" name="base_offer_subtotal" precision="20" scale="4" nullable="true" comment="Offered Base Subtotal"/>
+        <column xsi:type="int" name="cart_id" unsigned="true" nullable="true" comment="Cart Carrying The Quote"/>
+        <column xsi:type="int" name="order_id" unsigned="true" nullable="true" comment="Placed Order ID"/>
+        <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
+        <column xsi:type="timestamp" name="updated_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="true" comment="Updated At"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY"><column name="entity_id"/></constraint>
+        <index referenceId="TONYAPPS_B2B_QUOTE_COMPANY_ID" indexType="btree"><column name="company_id"/></index>
+        <index referenceId="TONYAPPS_B2B_QUOTE_CUSTOMER_ID" indexType="btree"><column name="customer_id"/></index>
+        <index referenceId="TONYAPPS_B2B_QUOTE_STATUS" indexType="btree"><column name="status"/></index>
+        <index referenceId="TONYAPPS_B2B_QUOTE_CART_ID" indexType="btree"><column name="cart_id"/></index>
+    </table>
+    <table name="tonyapps_b2b_quote_item" resource="default" engine="innodb" comment="B2B Negotiable Quote Lines">
+        <column xsi:type="int" name="item_id" unsigned="true" nullable="false" identity="true" comment="Line ID"/>
+        <column xsi:type="int" name="quote_id" unsigned="true" nullable="false" comment="Quote ID"/>
+        <column xsi:type="int" name="product_id" unsigned="true" nullable="false" comment="Product ID"/>
+        <column xsi:type="varchar" name="sku" nullable="false" length="64" comment="SKU"/>
+        <column xsi:type="varchar" name="name" nullable="false" length="255" comment="Product Name"/>
+        <column xsi:type="text" name="buy_request" nullable="false" comment="Buy Request JSON"/>
+        <column xsi:type="decimal" name="qty" precision="12" scale="4" nullable="false" default="0" comment="Qty"/>
+        <column xsi:type="decimal" name="base_catalog_price" precision="20" scale="4" nullable="false" default="0" comment="Base Catalog Unit Price At Request"/>
+        <column xsi:type="decimal" name="base_negotiated_price" precision="20" scale="4" nullable="true" comment="Base Negotiated Unit Price"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY"><column name="item_id"/></constraint>
+        <constraint xsi:type="foreign" referenceId="TONYAPPS_B2B_QUOTE_ITEM_QUOTE_ID_TONYAPPS_B2B_QUOTE_ENTITY_ID"
+                    table="tonyapps_b2b_quote_item" column="quote_id" referenceTable="tonyapps_b2b_quote"
+                    referenceColumn="entity_id" onDelete="CASCADE"/>
+    </table>
+    <table name="tonyapps_b2b_quote_history" resource="default" engine="innodb" comment="B2B Negotiable Quote History">
+        <column xsi:type="int" name="entry_id" unsigned="true" nullable="false" identity="true" comment="Entry ID"/>
+        <column xsi:type="int" name="quote_id" unsigned="true" nullable="false" comment="Quote ID"/>
+        <column xsi:type="varchar" name="author_type" nullable="false" length="8" comment="buyer, seller or system"/>
+        <column xsi:type="int" name="author_id" unsigned="true" nullable="true" comment="Customer or Admin User ID"/>
+        <column xsi:type="text" name="comment" nullable="true" comment="Comment"/>
+        <column xsi:type="varchar" name="status" nullable="false" length="16" comment="Status After This Entry"/>
+        <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY"><column name="entry_id"/></constraint>
+        <constraint xsi:type="foreign" referenceId="TONYAPPS_B2B_QUOTE_HISTORY_QUOTE_ID_TONYAPPS_B2B_QUOTE_ENTITY_ID"
+                    table="tonyapps_b2b_quote_history" column="quote_id" referenceTable="tonyapps_b2b_quote"
+                    referenceColumn="entity_id" onDelete="CASCADE"/>
+    </table>
+</schema>
