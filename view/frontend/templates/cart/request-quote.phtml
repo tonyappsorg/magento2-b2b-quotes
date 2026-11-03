@@ -2,7 +2,20 @@
 /** @var \Tonyapps\B2bQuotes\Block\Cart\RequestQuote $block */
 /** @var \Magento\Framework\Escaper $escaper */
 ?>
-<?php if ($block->canRequest()): ?>
+<?php if ($quote = $block->getLinkedQuote()): ?>
+    <div class="b2b-quotes-linked">
+        <?php if ($problem = $block->getProblem()): ?>
+            <div class="message error"><span><?= $escaper->escapeHtml($problem) ?></span></div>
+        <?php else: ?>
+            <div class="message success"><span><?= $escaper->escapeHtml(__('This cart uses the prices of quote #%1, valid until %2. Changing the cart removes the right to these prices.', $quote['entity_id'], $quote['expires_at'])) ?></span></div>
+        <?php endif; ?>
+        <p><a href="<?= $escaper->escapeUrl($block->getQuoteUrl($quote)) ?>"><?= $escaper->escapeHtml(__('View quote #%1', $quote['entity_id'])) ?></a></p>
+        <form action="<?= $escaper->escapeUrl($block->getLeaveUrl()) ?>" method="post">
+            <?= $block->getBlockHtml('formkey') ?>
+            <button type="submit" class="action secondary"><span><?= $escaper->escapeHtml(__('Leave Quote')) ?></span></button>
+        </form>
+    </div>
+<?php elseif ($block->canRequest()): ?>
     <div class="b2b-quotes-request">
         <?php if ($unsupported = $block->getUnsupportedItems()): ?>
             <p><?= $escaper->escapeHtml(__('To request a quote, remove the products that cannot be quoted: %1.', implode(', ', $unsupported))) ?></p>

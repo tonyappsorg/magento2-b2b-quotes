@@ -157,4 +157,41 @@ class QuoteRequest extends AbstractDb
             'status' => $status,
         ]);
     }
+
+    /**
+     * The quote whose prices a cart carries, if any. Ordered quotes no longer bind their cart.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function getByCartId(int $cartId): ?array
+    {
+        $connection = $this->getConnection();
+        $id = $connection->fetchOne(
+            $connection->select()->from($this->getMainTable(), ['entity_id'])
+                ->where('cart_id = ?', $cartId)->where('status <> ?', self::ORDERED)
+                ->order('entity_id DESC')->limit(1)
+        );
+        return $id ? $this->getById((int)$id) : null;
+    }
+
+    /** One cart carries at most one quote: linking a cart releases it from any other quote. */
+    public function linkCart(int $quoteId, int $cartId): void
+    {
+        $this->unlinkCart($cartId);
+        $this->getConnection()->update($this->getMainTable(), ['cart_id' => $cartId], ['entity_id = ?' => $quoteId]);
+    }
+
+    public function unlinkCart(int $cartId): void
+    {
+        $this->getConnection()->update(
+            $this->getMainTable(),
+            ['cart_id' => null],
+            ['cart_id = ?' => $cartId, 'status <> ?' => self::ORDERED]
+        );
+    }
+
+    public function markOrdered(int $quoteId, int $orderId): bool
+    {
+        return $this->transition($quoteId, [self::OFFERED], self::ORDERED, ['order_id' => $orderId]);
+    }
 }

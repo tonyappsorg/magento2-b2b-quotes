@@ -4,7 +4,7 @@ Negotiable quotes for Tonyapps_B2b company accounts on Magento Open Source. A bu
 request, the seller answers with prices per line, and the buyer checks out at the agreed prices. Adobe sells this
 only in Commerce B2B (`Magento_NegotiableQuote`).
 
-**Status: scope agreed 2026-11-03 (all three proposals accepted). Phase 1 built 2026-11-03; phase 2 next.**
+**Status: scope agreed 2026-11-03 (all three proposals accepted). Phases 1 and 2 built 2026-11-03; manual QA (phase 3) pending.**
 
 "Quote" in this file means the B2B price request. Magento's own `quote` table, the cart, is called "cart".
 
@@ -23,7 +23,7 @@ only in Commerce B2B (`Magento_NegotiableQuote`).
 | Discounts | Cart price rules and coupons do not apply to lines of a negotiated cart (`no_discount` on the items). The negotiated price is the final item price. |
 | Shipping | Calculated normally at checkout. It is not negotiated. |
 | Currency and tax | Negotiated prices are stored in the website base currency and converted to the cart currency when applied. They are entered in the same tax mode (incl. or excl. tax) as catalog prices. |
-| After the order | The order stores the quote id and the quote becomes `ordered`, with a link to the order on both sides. An ordered quote cannot be used again. |
+| After the order | The quote becomes `ordered` and stores the order id. Both quote pages link to the order. An ordered quote cannot be used again. |
 | Expiry | Checked when the quote is shown and at checkout, with no cron. A quote past its expiry date is shown and treated as `expired`. |
 | Emails | New request and buyer reply go to a configured sales email. Offer and decline go to the buyer, with a copy to the company administrator when the administrator is not the buyer. |
 | Interplay | B2bOrderApproval still applies to a negotiated cart above its threshold. Approval is the company's internal control, and its cart fingerprint already includes prices. Store credit and payment restrictions are unchanged. |
@@ -55,6 +55,14 @@ only in Commerce B2B (`Magento_NegotiableQuote`).
 - The catalog price stored at request time is the cart line's `price`: base currency, in the catalog's tax mode. This is the same mode Magento uses for a custom price.
 - Buyers reply and close from the quote page. A reply always returns the quote to `open`.
 - Emails use the `sales` sender identity. The seller email does not link to the admin panel; it names the menu path.
+
+## Phase 2 notes
+
+- Only the buyer who requested the quote can check out with it. The company administrator can see the quote but cannot check out with it.
+- The cart is linked through `tonyapps_b2b_quote.cart_id`. The order gate is a plugin on `QuoteManagement::submit()`, which also covers PayPal Express and admin orders. Multishipping is refused for a linked cart, and `/checkout` redirects back to the cart when the gate would refuse the order.
+- The cart matches the quote when it has the same SKUs at the same quantities, each still at its negotiated price, compared to 2 decimals in the cart currency. Tonyapps_FreeGift gift lines are ignored when requesting, matching and leaving a quote.
+- A buyer reply, a close, a decline or expiry takes away the cart's right to the prices. The cart page then shows why and offers **Leave Quote**. **Leave Quote** is not gated by the permission or the enable switch, so a buyer who loses either can still return the cart to regular prices.
+- A linked cart cannot request a new quote until the buyer leaves the current one.
 
 ## Install
 

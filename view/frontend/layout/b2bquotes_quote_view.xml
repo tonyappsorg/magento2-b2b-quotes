@@ -4,7 +4,7 @@
     <update handle="customer_account"/>
     <body>
         <referenceContainer name="content">
-            <block class="Magento\Framework\View\Element\Template"
+            <block class="Tonyapps\B2bQuotes\Block\Quote\View"
                    name="tonyapps.b2b.quotes.view"
                    template="Tonyapps_B2bQuotes::quote/view.phtml"
                    cacheable="false">

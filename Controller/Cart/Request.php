@@ -17,6 +17,7 @@ use Tonyapps\B2b\Model\CompanyContext;
 use Tonyapps\B2bQuotes\Controller\AbstractQuoteAction;
 use Tonyapps\B2bQuotes\Model\Config;
 use Tonyapps\B2bQuotes\Model\Notifier;
+use Tonyapps\B2bQuotes\Model\QuoteCheckout;
 use Tonyapps\B2bQuotes\Model\QuoteService;
 
 class Request extends AbstractQuoteAction implements HttpPostActionInterface
@@ -31,7 +32,8 @@ class Request extends AbstractQuoteAction implements HttpPostActionInterface
         Config $config,
         QuoteService $quoteService,
         private readonly CheckoutSession $checkoutSession,
-        private readonly Notifier $notifier
+        private readonly Notifier $notifier,
+        private readonly QuoteCheckout $quoteCheckout
     ) {
         parent::__construct($request, $resultFactory, $companyContext, $customerSession, $messageManager, $url, $config, $quoteService);
     }
@@ -39,8 +41,12 @@ class Request extends AbstractQuoteAction implements HttpPostActionInterface
     protected function executeForCompany(CompanyInterface $company): ResultInterface
     {
         try {
+            $cart = $this->checkoutSession->getQuote();
+            if ($this->quoteCheckout->getLinkedQuote($cart)) {
+                throw new LocalizedException(__('This cart already holds quoted prices. Leave the quote before requesting a new one.'));
+            }
             $quoteId = $this->quoteService->request(
-                $this->checkoutSession->getQuote(),
+                $cart,
                 (int)$this->companyContext->getCustomerId(),
                 (int)$company->getId(),
                 (string)$this->request->getParam('comment')

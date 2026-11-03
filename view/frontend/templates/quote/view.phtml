@@ -1,5 +1,5 @@
 <?php
-/** @var \Magento\Framework\View\Element\Template $block */
+/** @var \Tonyapps\B2bQuotes\Block\Quote\View $block */
 /** @var \Magento\Framework\Escaper $escaper */
 /** @var \Tonyapps\B2bQuotes\ViewModel\QuoteDetails $details */
 $details = $block->getData('details');
@@ -60,6 +60,16 @@ $replyUrl = $block->getUrl('b2bquotes/quote/reply', ['id' => (int)$quote['entity
             </li>
         <?php endforeach; ?>
     </ul>
+
+    <?php if ($block->canCheckout($quote)): ?>
+        <form action="<?= $escaper->escapeUrl($block->getUrl('b2bquotes/quote/checkout', ['id' => (int)$quote['entity_id']])) ?>" method="post">
+            <?= $block->getBlockHtml('formkey') ?>
+            <?php if ($count = $block->getCartItemCount()): ?>
+                <p><?= $escaper->escapeHtml(__('Your cart has %1 product(s). They will be replaced by the products of this quote.', $count)) ?></p>
+            <?php endif; ?>
+            <button type="submit" class="action primary"><span><?= $escaper->escapeHtml(__('Checkout with This Quote')) ?></span></button>
+        </form>
+    <?php endif; ?>
 
     <?php if ($details->isActive($quote)): ?>
         <form action="<?= $escaper->escapeUrl($replyUrl) ?>" method="post">

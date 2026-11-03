@@ -20,6 +20,9 @@ class QuoteService
     /** Product types whose cart line is one priced item; bundles and the rest price their children. */
     public const SUPPORTED_TYPES = ['simple', 'virtual', 'configurable'];
 
+    /** Tonyapps_FreeGift marks its gift lines with this option; gifts are never quoted or locked. */
+    public const FREE_GIFT_OPTION = 'tonyapps_free_gift';
+
     private const ACTIVE = [QuoteRequest::OPEN, QuoteRequest::OFFERED];
 
     public function __construct(
@@ -51,7 +54,7 @@ class QuoteService
 
         $items = [];
         $subtotal = 0.0;
-        foreach ($cart->getAllVisibleItems() as $item) {
+        foreach ($this->getQuotableItems($cart) as $item) {
             // "price" is the base-currency catalog price in the catalog's tax mode, the same mode a
             // custom price is entered in; base_price is only set by the tax collector.
             $price = round((float)$item->getPrice(), 4);
@@ -65,6 +68,10 @@ class QuoteService
                 'qty' => $qty,
                 'base_catalog_price' => $price,
             ];
+        }
+
+        if (!$items) {
+            throw new LocalizedException(__('Your cart is empty.'));
         }
 
         return $this->quotes->create([
@@ -83,12 +90,21 @@ class QuoteService
     public function getUnsupportedItems(Quote $cart): array
     {
         $names = [];
-        foreach ($cart->getAllVisibleItems() as $item) {
+        foreach ($this->getQuotableItems($cart) as $item) {
             if (!in_array($item->getProductType(), self::SUPPORTED_TYPES, true)) {
                 $names[] = (string)$item->getName();
             }
         }
         return $names;
+    }
+
+    /** @return \Magento\Quote\Model\Quote\Item[] visible cart lines other than free gifts */
+    public function getQuotableItems(Quote $cart): array
+    {
+        return array_values(array_filter(
+            $cart->getAllVisibleItems(),
+            static fn($item): bool => !$item->getOptionByCode(self::FREE_GIFT_OPTION)
+        ));
     }
 
     /**
