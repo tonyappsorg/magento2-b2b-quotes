@@ -7,6 +7,7 @@
                 <arguments>
                     <argument name="label" xsi:type="string" translate="true">My Quotes</argument>
                     <argument name="path" xsi:type="string">b2bquotes/quote/index</argument>
+                    <argument name="sortOrder" xsi:type="number">237</argument>
                 </arguments>
             </block>
         </referenceBlock>

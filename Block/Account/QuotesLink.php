@@ -4,13 +4,13 @@ declare(strict_types=1);
 namespace Tonyapps\B2bQuotes\Block\Account;
 
 use Magento\Framework\App\DefaultPathInterface;
-use Magento\Framework\View\Element\Html\Link\Current;
+use Magento\Customer\Block\Account\SortLink;
 use Magento\Framework\View\Element\Template\Context;
 use Tonyapps\B2b\Model\CompanyContext;
 use Tonyapps\B2b\Model\Permissions;
 use Tonyapps\B2bQuotes\Model\Config;
 
-class QuotesLink extends Current
+class QuotesLink extends SortLink
 {
     public function __construct(
         Context $context,
