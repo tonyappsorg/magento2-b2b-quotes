@@ -80,35 +80,6 @@ the latest comment in a highlighted box, the offer's validity date and a button.
 the quote in the admin (no secret key, so it works from an email). New template variables: `items`,
 `request_subtotal`, `offer_subtotal`, `has_offer`, `valid_until`, `admin_url`.
 
-## 2026-11-09 email redesign
-
-Buyer and seller emails show the quote lines (qty, catalog price, quoted price or — before an offer), both subtotals,
-the latest comment in a highlighted box, the offer's validity date and a button. The seller email links straight to
-the quote in the admin (no secret key, so it works from an email). New template variables: `items`,
-`request_subtotal`, `offer_subtotal`, `has_offer`, `valid_until`, `admin_url`.
-
-## Phase 4: sales reps and commission — scope draft 2026-11-09, awaiting approval
-
-An admin user who handles a quote is its **sales rep** and earns a percentage of what the quote sells.
-Decisions taken with the owner on 2026-11-09: per-rep default rate with a per-quote override; commission on
-the quote's net value; earned on invoice, reduced by refunds; quotes assigned automatically with manual
-reassignment.
-
-| Feature | Decision |
-|---|---|
-| Rep's default rate | A **Commission Rate (%)** field on the admin user form (**System > Permissions > All Users**), stored in a new table `tonyapps_b2b_sales_rep` (admin user id, rate). Empty means 0%. |
-| Assignment | The first admin who sends an offer, a comment or a decline on an unassigned quote becomes its rep. The quote page has a **Sales Rep** dropdown (active admin users) to reassign it at any time. |
-| Rate on the quote | The quote page has a **Commission (%)** field, prefilled with the rep's default. The rate is fixed on the quote when the offer is sent, so later changes to the rep's default don't change it. Reassigning the quote before the offer takes the new rep's default. |
-| Basis | The net value of the quote lines on the invoice: the invoice's base subtotal excluding tax, without shipping. Free gifts are $0 and add nothing. |
-| When it is earned | When an order placed from the quote is invoiced, one commission line is written per invoice. A credit memo writes a negative line for its refunded subtotal. A cancelled order that was never invoiced earns nothing. |
-| Who earns it | The quote's rep and rate at invoice or refund time, so a refund reduces the commission of the rep who earned it. |
-| Commission lines | A new table `tonyapps_b2b_quote_commission`: quote, order, rep, type (invoice or refund), invoice or credit memo id (unique per type), base basis amount, rate, base commission, base currency, created at. Lines are never edited. |
-| Quote list | A **Sales Rep** column and a **My quotes** filter. |
-| Commission report | **Sales > B2B Quotes > Commissions**: a date range and a rep filter, a total per rep, and the lines (date, order #, quote #, invoice or refund, basis, rate, commission), with CSV export. ACL `Tonyapps_B2bQuotes::commissions`, separate from handling quotes. |
-| Emails | Buyer replies and closes on an assigned quote also go to the rep's email. New requests still go to the configured sales email. |
-
-**Out of scope:** payouts and marking commission as paid, a rep seeing only their own quotes (ACL by owner), split commission between several reps, commission on margin, and commission on orders that don't come from a quote.
-
 ## Install
 
 Install `tonyapps/module-b2b-quotes` with `tonyapps/module-b2b`, run `bin/magento setup:upgrade`, enable **Stores > Configuration > Tonyapps > B2B Quotes**, and give company roles the **Request quotes** permission. Company administrators always have it.
