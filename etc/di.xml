@@ -4,4 +4,7 @@
     <type name="Magento\Quote\Model\QuoteManagement">
         <plugin name="tonyapps_b2b_quotes_submit" type="Tonyapps\B2bQuotes\Plugin\QuoteManagementPlugin" sortOrder="20"/>
     </type>
+    <type name="Magento\SalesRule\Model\Validator">
+        <plugin name="tonyapps_b2b_quotes_negotiated_lines" type="Tonyapps\B2bQuotes\Plugin\SalesRule\NegotiatedLinesPlugin"/>
+    </type>
 </config>

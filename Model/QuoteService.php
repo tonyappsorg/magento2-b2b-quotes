@@ -23,6 +23,9 @@ class QuoteService
     /** Tonyapps_FreeGift marks its gift lines with this option; gifts are never quoted or locked. */
     public const FREE_GIFT_OPTION = 'tonyapps_free_gift';
 
+    /** The cart price rule action Tonyapps_FreeGift adds ("Add free gift"). */
+    public const FREE_GIFT_ACTION = 'tonyapps_free_gift';
+
     private const ACTIVE = [QuoteRequest::OPEN, QuoteRequest::OFFERED];
 
     public function __construct(

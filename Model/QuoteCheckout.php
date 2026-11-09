@@ -19,6 +19,13 @@ use Tonyapps\B2bQuotes\Model\ResourceModel\QuoteRequest;
  */
 class QuoteCheckout
 {
+    /**
+     * Marks a cart line priced by a quote. Cart price rules skip such lines, except Tonyapps_FreeGift
+     * rules (see Plugin\SalesRule\NegotiatedLinesPlugin), so the negotiated price stays final but
+     * free gifts still come with the order.
+     */
+    public const NEGOTIATED_OPTION = 'tonyapps_b2b_quote';
+
     public function __construct(
         private readonly QuoteRequest $quotes,
         private readonly QuoteService $quoteService,
@@ -58,7 +65,12 @@ class QuoteCheckout
                 throw new LocalizedException(__('%1 cannot be added to the cart: %2', $line['name'], $item));
             }
             $price = $this->toCartCurrency((float)$line['base_negotiated_price'], $cart);
-            $item->setCustomPrice($price)->setOriginalCustomPrice($price)->setNoDiscount(1);
+            $item->setCustomPrice($price)->setOriginalCustomPrice($price);
+            $item->addOption([
+                'code' => self::NEGOTIATED_OPTION,
+                'value' => (string)$quoteId,
+                'product_id' => $item->getProductId(),
+            ]);
         }
 
         $cart->collectTotals();
@@ -129,7 +141,9 @@ class QuoteCheckout
             if ($item->getOptionByCode(QuoteService::FREE_GIFT_OPTION)) {
                 continue;
             }
+            // no_discount: carts loaded before the line option replaced it.
             $item->setCustomPrice(null)->setOriginalCustomPrice(null)->setNoDiscount(0);
+            $item->removeOption(self::NEGOTIATED_OPTION);
         }
         $cart->setTotalsCollectedFlag(false)->collectTotals();
         $this->cartRepository->save($cart);

@@ -62,7 +62,15 @@ class QuoteCheckoutTest extends TestCase
         $cart->expects(self::once())->method('removeAllItems');
         $cart->expects(self::exactly(2))->method('addProduct')
             ->willReturnCallback(function (Product $product, DataObject $request) use (&$added) {
-                $item = new DataObject();
+                $item = new class (['product_id' => 7]) extends DataObject {
+                    public array $options = [];
+
+                    public function addOption(array $option): self
+                    {
+                        $this->options[] = $option;
+                        return $this;
+                    }
+                };
                 $added[] = [$request->getData(), $item];
                 return $item;
             });
@@ -75,7 +83,9 @@ class QuoteCheckoutTest extends TestCase
         self::assertSame(['qty' => 2.0, 'super_attribute' => ['93' => '5']], $added[0][0]);
         self::assertSame(4.5, $added[0][1]->getCustomPrice());
         self::assertSame(4.5, $added[0][1]->getOriginalCustomPrice());
-        self::assertSame(1, $added[0][1]->getNoDiscount());
+        // Marked as quoted instead of no_discount, so free-gift rules still run on the line.
+        self::assertNull($added[0][1]->getNoDiscount());
+        self::assertSame([['code' => QuoteCheckout::NEGOTIATED_OPTION, 'value' => '10', 'product_id' => 7]], $added[0][1]->options);
         self::assertSame(2.0, $added[1][1]->getCustomPrice());
     }
 
@@ -145,6 +155,7 @@ class QuoteCheckoutTest extends TestCase
         self::assertNull($line->getCustomPrice());
         self::assertNull($line->getOriginalCustomPrice());
         self::assertSame(0, $line->getNoDiscount());
+        self::assertSame([QuoteCheckout::NEGOTIATED_OPTION], $line->removed);
         self::assertSame(0.0, $gift->getOriginalCustomPrice());
     }
 
@@ -211,9 +222,17 @@ class QuoteCheckoutTest extends TestCase
                 parent::__construct($data);
             }
 
+            public array $removed = [];
+
             public function getOptionByCode(string $code): ?DataObject
             {
                 return $this->gift && $code === QuoteService::FREE_GIFT_OPTION ? new DataObject() : null;
+            }
+
+            public function removeOption(string $code): self
+            {
+                $this->removed[] = $code;
+                return $this;
             }
         };
     }
