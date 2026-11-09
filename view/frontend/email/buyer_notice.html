@@ -3,10 +3,82 @@
 "var quote_id":"Quote ID",
 "var message":"What happened",
 "var comment":"Latest comment",
+"var company_name":"Company name",
 "var buyer_name":"Buyer name",
-"var quote_url":"Quote page URL"
+"var quote_url":"Quote page URL",
+"var admin_url":"Admin quote page URL",
+"var items":"Quote lines",
+"var request_subtotal":"Catalog subtotal",
+"var offer_subtotal":"Offer subtotal",
+"var has_offer":"Whether an offer was made",
+"var valid_until":"Offer valid until"
 } @-->
-<p>{{trans "Hello %name," name=$buyer_name}}</p>
-<p>{{trans "%message" message=$message}}</p>
-{{depend comment}}<p>{{trans "Comment from the seller:"}}<br>{{var comment}}</p>{{/depend}}
-<p><a href="{{var quote_url}}">{{trans "View quote #%id" id=$quote_id}}</a></p>
+{{template config_path="design/email/header_template"}}
+<table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+    <tr>
+        <td style="padding-bottom:20px;">
+            <p style="margin:0 0 8px;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#1979c3;">{{trans "Quote #%id" id=$quote_id}}</p>
+            <h1 style="margin:0 0 12px;font-size:24px;font-weight:600;">{{var message}}</h1>
+            <p style="margin:0;">{{trans "Hi %name, there is news about your price request." name=$buyer_name}}</p>
+        </td>
+    </tr>
+    {{depend comment}}
+    <tr>
+        <td style="padding-bottom:24px;">
+            <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+                <tr>
+                    <td style="padding:16px 20px;background:#f2f7fb;border-left:4px solid #1979c3;border-radius:2px;"><p style="margin:0 0 4px;font-weight:600;">{{trans "From the seller"}}</p><p style="margin:0;">{{var comment}}</p></td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    {{/depend}}
+    <tr>
+        <td style="padding-bottom:24px;">
+            <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="border:1px solid #e5e5e5;">
+                <tr>
+                    <th align="left" style="padding:10px 12px;background:#f2f2f2;font-size:12px;font-weight:600;text-transform:uppercase;color:#666666;">{{trans "Product"}}</th>
+                    <th align="right" style="padding:10px 12px;background:#f2f2f2;font-size:12px;font-weight:600;text-transform:uppercase;color:#666666;">{{trans "Qty"}}</th>
+                    <th align="right" style="padding:10px 12px;background:#f2f2f2;font-size:12px;font-weight:600;text-transform:uppercase;color:#666666;">{{trans "Catalog Price"}}</th>
+                    <th align="right" style="padding:10px 12px;background:#f2f2f2;font-size:12px;font-weight:600;text-transform:uppercase;color:#666666;">{{trans "Quoted Price"}}</th>
+                </tr>
+                {{for item in items}}
+                <tr>
+                    <td style="padding:12px;border-bottom:1px solid #e5e5e5;"><strong>{{var item.name}}</strong><br><span style="font-size:12px;color:#999999;">{{var item.sku}}</span></td>
+                    <td align="right" style="padding:12px;border-bottom:1px solid #e5e5e5;">{{var item.qty}}</td>
+                    <td align="right" style="padding:12px;border-bottom:1px solid #e5e5e5;white-space:nowrap;color:#999999;">{{var item.catalog_price}}</td>
+                    <td align="right" style="padding:12px;border-bottom:1px solid #e5e5e5;white-space:nowrap;font-weight:600;">{{var item.quoted_price}}</td>
+                </tr>
+                {{/for}}
+                <tr>
+                    <td colspan="2" style="padding:12px;font-weight:600;">{{trans "Subtotal"}}</td>
+                    <td align="right" style="padding:12px;white-space:nowrap;color:#999999;">{{var request_subtotal}}</td>
+                    <td align="right" style="padding:12px;white-space:nowrap;font-weight:600;">{{var offer_subtotal}}</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    {{depend has_offer}}
+    <tr>
+        <td style="padding-bottom:24px;">
+            <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#f8f8f8;border:1px solid #e5e5e5;border-radius:4px;">
+                <tr>
+                    <td style="padding:12px 16px;color:#666666;width:40%;">{{trans "Offer valid until"}}</td>
+                    <td style="padding:12px 16px;font-weight:600;">{{var valid_until}}</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    {{/depend}}
+    <tr>
+        <td align="center" style="padding:8px 0 24px;">
+            <a href="{{var quote_url}}" style="display:inline-block;padding:14px 32px;background:#1979c3;color:#ffffff;text-decoration:none;font-size:16px;font-weight:600;border-radius:3px;">{{trans "View your quote"}}</a>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding-top:16px;border-top:1px solid #e5e5e5;">
+            <p style="margin:0;font-size:12px;color:#999999;">{{trans "From the quote page you can check out at the quoted prices, reply to the seller or close the quote."}}</p>
+        </td>
+    </tr>
+</table>
+{{template config_path="design/email/footer_template"}}

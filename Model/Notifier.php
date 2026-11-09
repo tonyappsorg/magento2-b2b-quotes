@@ -3,9 +3,11 @@ declare(strict_types=1);
 
 namespace Tonyapps\B2bQuotes\Model;
 
+use Magento\Backend\Model\UrlInterface as BackendUrl;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\App\Area;
 use Magento\Framework\Mail\Template\TransportBuilder;
+use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
 use Tonyapps\B2b\Api\CompanyRepositoryInterface;
@@ -23,7 +25,9 @@ class Notifier
         private readonly CustomerRepositoryInterface $customers,
         private readonly TransportBuilder $transportBuilder,
         private readonly StoreManagerInterface $storeManager,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
+        private readonly PriceCurrencyInterface $priceCurrency,
+        private readonly BackendUrl $backendUrl
     ) {
     }
 
@@ -74,7 +78,9 @@ class Notifier
                     'company_name' => (string)($quote['company_name'] ?? ''),
                     'buyer_name' => (string)$quote['customer_name'],
                     'quote_url' => $this->storeManager->getStore($storeId)->getUrl('b2bquotes/quote/view', ['id' => $quoteId]),
-                ])
+                    // No secret key: it would be minted for this request, not the reader's admin session.
+                    'admin_url' => $this->backendUrl->getUrl('tonyapps_b2bquotes/quote/edit', ['id' => $quoteId, '_nosid' => true, '_nosecret' => true]),
+                ] + $this->quoteVars($quote))
                 ->setFromByScope('sales', $storeId)
                 ->addTo($to);
             foreach (array_filter($cc) as $email) {
@@ -84,5 +90,36 @@ class Notifier
         } catch (\Exception $exception) {
             $this->logger->error('B2B quote notification failed: ' . $exception->getMessage());
         }
+    }
+
+    /**
+     * Lines and totals for the emails' item table, in the quote's base currency. Quoted prices are "—"
+     * until the seller has made an offer.
+     *
+     * @param array<string, mixed> $quote
+     * @return array<string, mixed>
+     */
+    private function quoteVars(array $quote): array
+    {
+        $format = fn($amount): string => $amount === null
+            ? '—'
+            : (string)$this->priceCurrency->format((float)$amount, false, 2, null, (string)$quote['base_currency_code']);
+        $items = [];
+        foreach ($this->quotes->getItems((int)$quote['entity_id']) as $item) {
+            $items[] = [
+                'name' => (string)$item['name'],
+                'sku' => (string)$item['sku'],
+                'qty' => (string)(float)$item['qty'],
+                'catalog_price' => $format($item['base_catalog_price']),
+                'quoted_price' => $format($item['base_negotiated_price']),
+            ];
+        }
+        return [
+            'items' => $items,
+            'request_subtotal' => $format($quote['base_request_subtotal'] ?? null),
+            'offer_subtotal' => $format($quote['base_offer_subtotal'] ?? null),
+            'has_offer' => ($quote['base_offer_subtotal'] ?? null) !== null,
+            'valid_until' => (string)($quote['expires_at'] ?? ''),
+        ];
     }
 }
