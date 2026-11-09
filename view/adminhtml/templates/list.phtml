@@ -5,14 +5,15 @@
 $details = $block->getData('details');
 $quotes = $block->getQuotes();
 ?>
+<div class="admin__data-grid-wrap">
 <table class="data-grid">
     <thead><tr>
         <th class="data-grid-th"><?= $escaper->escapeHtml(__('Quote')) ?></th>
         <th class="data-grid-th"><?= $escaper->escapeHtml(__('Company')) ?></th>
         <th class="data-grid-th"><?= $escaper->escapeHtml(__('Buyer')) ?></th>
         <th class="data-grid-th"><?= $escaper->escapeHtml(__('Status')) ?></th>
-        <th class="data-grid-th"><?= $escaper->escapeHtml(__('Requested')) ?></th>
-        <th class="data-grid-th"><?= $escaper->escapeHtml(__('Offered')) ?></th>
+        <th class="data-grid-th"><?= $escaper->escapeHtml(__('Catalog Subtotal')) ?></th>
+        <th class="data-grid-th"><?= $escaper->escapeHtml(__('Offer Subtotal')) ?></th>
         <th class="data-grid-th"><?= $escaper->escapeHtml(__('Valid Until')) ?></th>
         <th class="data-grid-th"><?= $escaper->escapeHtml(__('Updated')) ?></th>
     </tr></thead>
@@ -22,7 +23,8 @@ $quotes = $block->getQuotes();
             <td><a href="<?= $escaper->escapeUrl($block->getUrl('*/*/edit', ['id' => (int)$quote['entity_id']])) ?>">#<?= (int)$quote['entity_id'] ?></a></td>
             <td><?= $escaper->escapeHtml((string)$quote['company_name']) ?></td>
             <td><?= $escaper->escapeHtml($quote['customer_name']) ?><br><?= $escaper->escapeHtml($quote['customer_email']) ?></td>
-            <td><?= $escaper->escapeHtml($details->getStatusLabel($details->getStatus($quote))) ?></td>
+            <?php $status = $details->getStatus($quote); ?>
+            <td><span class="<?= $escaper->escapeHtmlAttr($details->getStatusSeverity($status)) ?>"><span><?= $escaper->escapeHtml($details->getAdminStatusLabel($status)) ?></span></span></td>
             <td><?= $escaper->escapeHtml($details->formatPrice($quote['base_request_subtotal'], $quote)) ?></td>
             <td><?= $escaper->escapeHtml($details->formatPrice($quote['base_offer_subtotal'], $quote)) ?></td>
             <td><?= $escaper->escapeHtml((string)$quote['expires_at']) ?></td>
@@ -34,6 +36,7 @@ $quotes = $block->getQuotes();
     <?php endif; ?>
     </tbody>
 </table>
+</div>
 <?php if ($url = $block->getPreviousPageUrl()): ?>
     <a href="<?= $escaper->escapeUrl($url) ?>"><?= $escaper->escapeHtml(__('Previous')) ?></a>
 <?php endif; ?>

@@ -1,0 +1,158 @@
+/* Comments history of the admin quote page: a timeline, newest first. */
+.b2b-quote-history {
+    list-style: none;
+    margin: 2rem 0 0;
+    padding: 0 0 0 1.6rem;
+    border-left: 2px solid #e3e3e3;
+}
+
+.b2b-quote-history-item {
+    position: relative;
+    margin: 0 0 2rem;
+}
+
+.b2b-quote-history-item::before {
+    content: '';
+    position: absolute;
+    left: -2.25rem;
+    top: .35rem;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background: #adadad;
+    border: 2px solid #fff;
+}
+
+.b2b-quote-history-buyer::before { background: #007bdb; }
+.b2b-quote-history-seller::before { background: #eb5202; }
+
+.b2b-quote-history-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: .4rem 1rem;
+}
+
+.b2b-quote-history-author {
+    font-weight: 600;
+}
+
+.b2b-quote-history-status {
+    padding: .1rem .8rem;
+    border-radius: 1rem;
+    background: #f1f1f1;
+    color: #514943;
+    font-size: 1.2rem;
+}
+
+.b2b-quote-history-date {
+    margin-left: auto;
+    color: #808080;
+    font-size: 1.2rem;
+}
+
+.b2b-quote-history-comment {
+    margin-top: .8rem;
+    padding: 1rem 1.4rem;
+    background: #f8f8f8;
+    border: 1px solid #e3e3e3;
+    border-radius: 2px;
+    line-height: 1.5;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.b2b-quote-history-seller .b2b-quote-history-comment {
+    background: #fffbf5;
+    border-color: #f5d6bd;
+}
+
+/* Items Quoted */
+.b2b-quote-apply-all {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0 0 1.6rem;
+}
+
+.b2b-quote-apply-all label[for='b2b-quote-percent']:first-child {
+    font-weight: 600;
+}
+
+.b2b-quote-apply-all .admin__control-addon {
+    width: 10rem;
+}
+
+.b2b-quote-items {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.b2b-quote-items th {
+    padding: 1rem 1.2rem;
+    background: #efefef;
+    border-bottom: 1px solid #d6d6d6;
+    font-weight: 600;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.b2b-quote-items td {
+    padding: 1.4rem 1.2rem;
+    border-bottom: 1px solid #e3e3e3;
+    vertical-align: middle;
+}
+
+.b2b-quote-items .col-price,
+.b2b-quote-items .col-ordered-qty,
+.b2b-quote-items .col-discont,
+.b2b-quote-items .col-total {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.b2b-quote-items .col-product {
+    width: 40%;
+}
+
+.b2b-quote-items .product-title {
+    font-weight: 600;
+}
+
+.b2b-quote-items .product-sku-block {
+    margin-top: .4rem;
+    color: #808080;
+    font-size: 1.2rem;
+}
+
+.b2b-quote-items .admin__control-addon {
+    width: 14rem;
+    margin-left: auto;
+}
+
+.b2b-quote-items .b2b-quote-price {
+    text-align: right;
+}
+
+.b2b-quote-items .col-total {
+    font-weight: 600;
+}
+
+.b2b-quote-expires {
+    width: 16rem;
+}
+
+/* Quote & Account Information */
+.order-information-table th,
+.order-information-table td {
+    vertical-align: middle;
+}
+
+.b2b-quote-badge[class*='grid-severity'] {
+    display: inline-block;
+    padding: .2rem 1.2rem;
+    border-radius: 1.2rem;
+    font-size: 1.2rem;
+    line-height: 1.8rem;
+    white-space: nowrap;
+}

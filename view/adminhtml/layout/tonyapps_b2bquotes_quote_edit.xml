@@ -1,7 +1,11 @@
 <?xml version="1.0"?>
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="Tonyapps_B2bQuotes::css/quote.css"/>
+    </head>
     <body>
         <referenceContainer name="content">
+            <block class="Tonyapps\B2bQuotes\Block\Adminhtml\Quote\Toolbar" name="tonyapps.b2b.quotes.admin.toolbar"/>
             <block class="Magento\Backend\Block\Template" name="tonyapps.b2b.quotes.admin.edit"
                    template="Tonyapps_B2bQuotes::edit.phtml">
                 <arguments>

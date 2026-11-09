@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Tonyapps\B2bQuotes\ViewModel;
 
 use Magento\Framework\Pricing\PriceCurrencyInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Tonyapps\B2bQuotes\Model\QuoteService;
 use Tonyapps\B2bQuotes\Model\ResourceModel\QuoteRequest;
@@ -14,7 +15,8 @@ class QuoteDetails implements ArgumentInterface
     public function __construct(
         private readonly QuoteRequest $quotes,
         private readonly QuoteService $quoteService,
-        private readonly PriceCurrencyInterface $priceCurrency
+        private readonly PriceCurrencyInterface $priceCurrency,
+        private readonly OrderRepositoryInterface $orders
     ) {
     }
 
@@ -40,10 +42,13 @@ class QuoteDetails implements ArgumentInterface
         return $this->quoteService->isActive($quote);
     }
 
-    /** The offer's expiry date, or the default validity for a quote not offered yet. */
+    /** The offer's expiry date, or the default validity for a quote not offered yet or expired (to renew). */
     public function getExpiryInput(array $quote): string
     {
-        return (string)($quote['expires_at'] ?? '') ?: $this->quoteService->getDefaultExpiry((int)$quote['store_id']);
+        $expiresAt = (string)($quote['expires_at'] ?? '');
+        return $expiresAt !== '' && $this->getStatus($quote) !== QuoteRequest::EXPIRED
+            ? $expiresAt
+            : $this->quoteService->getDefaultExpiry((int)$quote['store_id']);
     }
 
     public function getStatusLabel(string $status): string
@@ -57,6 +62,57 @@ class QuoteDetails implements ArgumentInterface
             QuoteRequest::EXPIRED => __('Expired'),
             default => $status,
         };
+    }
+
+    /** The same statuses as the seller sees them in the admin. */
+    public function getAdminStatusLabel(string $status): string
+    {
+        return (string)match ($status) {
+            QuoteRequest::OPEN => __('Awaiting your offer'),
+            QuoteRequest::OFFERED => __('Offer sent'),
+            QuoteRequest::DECLINED => __('Declined'),
+            QuoteRequest::CLOSED => __('Closed by buyer'),
+            QuoteRequest::ORDERED => __('Ordered'),
+            QuoteRequest::EXPIRED => __('Expired'),
+            default => $status,
+        };
+    }
+
+    /** Admin grid badge class: yellow when the seller has to act, green when done or waiting on the buyer. */
+    public function getStatusSeverity(string $status): string
+    {
+        return match ($status) {
+            QuoteRequest::OPEN => 'grid-severity-minor',
+            QuoteRequest::OFFERED, QuoteRequest::ORDERED => 'grid-severity-notice',
+            default => 'grid-severity-critical',
+        };
+    }
+
+    /** "10%" off the catalog price, or '' without an offer or a catalog price. */
+    public function getDiscountPercent(mixed $catalogPrice, mixed $negotiatedPrice): string
+    {
+        if ($negotiatedPrice === null || (float)$catalogPrice <= 0) {
+            return '';
+        }
+        return round((1 - (float)$negotiatedPrice / (float)$catalogPrice) * 100, 1) . '%';
+    }
+
+    /** History newest first, as in the admin order view. */
+    public function getHistoryNewestFirst(array $quote): array
+    {
+        return array_reverse($this->getHistory($quote));
+    }
+
+    public function getOrderIncrementId(array $quote): string
+    {
+        if (empty($quote['order_id'])) {
+            return '';
+        }
+        try {
+            return (string)$this->orders->get((int)$quote['order_id'])->getIncrementId();
+        } catch (\Exception) {
+            return (string)$quote['order_id'];
+        }
     }
 
     public function getAuthorLabel(string $authorType): string

@@ -1,6 +1,7 @@
 <?php
 /** @var \Magento\Backend\Block\Template $block */
 /** @var \Magento\Framework\Escaper $escaper */
+/** @var \Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer */
 /** @var \Tonyapps\B2bQuotes\ViewModel\QuoteDetails $details */
 $details = $block->getData('details');
 $quote = $block->getData('quote');
@@ -8,78 +9,280 @@ if (!$quote) {
     return;
 }
 $active = $details->isActive($quote);
+$status = $details->getStatus($quote);
+$currency = (string)$quote['base_currency_code'];
+$items = $details->getItems($quote);
+$orderNumber = $details->getOrderIncrementId($quote);
 ?>
-<p><a href="<?= $escaper->escapeUrl($block->getUrl('*/*/index')) ?>"><?= $escaper->escapeHtml(__('Back to quotes')) ?></a></p>
-<p>
-    <strong><?= $escaper->escapeHtml(__('Company')) ?>:</strong> <?= $escaper->escapeHtml((string)$quote['company_name']) ?> ·
-    <strong><?= $escaper->escapeHtml(__('Buyer')) ?>:</strong>
-    <a href="<?= $escaper->escapeUrl($block->getUrl('customer/index/edit', ['id' => (int)$quote['customer_id']])) ?>"><?= $escaper->escapeHtml($quote['customer_name']) ?></a>
-    (<?= $escaper->escapeHtml($quote['customer_email']) ?>) ·
-    <strong><?= $escaper->escapeHtml(__('Status')) ?>:</strong> <?= $escaper->escapeHtml($details->getStatusLabel($details->getStatus($quote))) ?>
-    <?php if ($quote['order_id']): ?>
-        · <a href="<?= $escaper->escapeUrl($block->getUrl('sales/order/view', ['order_id' => (int)$quote['order_id']])) ?>"><?= $escaper->escapeHtml(__('View order')) ?></a>
-    <?php endif; ?>
-</p>
-<form action="<?= $escaper->escapeUrl($block->getUrl('*/*/save', ['id' => (int)$quote['entity_id']])) ?>" method="post">
+<form id="b2b-quote-form" action="<?= $escaper->escapeUrl($block->getUrl('*/*/save', ['id' => (int)$quote['entity_id']])) ?>" method="post">
     <input name="form_key" type="hidden" value="<?= $escaper->escapeHtmlAttr($block->getFormKey()) ?>"/>
-    <table class="data-grid">
-        <thead><tr>
-            <th class="data-grid-th"><?= $escaper->escapeHtml(__('Product')) ?></th>
-            <th class="data-grid-th"><?= $escaper->escapeHtml(__('SKU')) ?></th>
-            <th class="data-grid-th"><?= $escaper->escapeHtml(__('Qty')) ?></th>
-            <th class="data-grid-th"><?= $escaper->escapeHtml(__('Catalog Price')) ?></th>
-            <th class="data-grid-th"><?= $escaper->escapeHtml(__('Negotiated Unit Price (%1)', $quote['base_currency_code'])) ?></th>
-        </tr></thead>
-        <tbody>
-        <?php foreach ($details->getItems($quote) as $item): ?>
-            <tr>
-                <td><a href="<?= $escaper->escapeUrl($block->getUrl('catalog/product/edit', ['id' => (int)$item['product_id']])) ?>"><?= $escaper->escapeHtml($item['name']) ?></a></td>
-                <td><?= $escaper->escapeHtml($item['sku']) ?></td>
-                <td><?= (float)$item['qty'] ?></td>
-                <td><?= $escaper->escapeHtml($details->formatPrice($item['base_catalog_price'], $quote)) ?></td>
-                <td>
+    <input name="do" type="hidden" value="comment"/>
+
+    <section class="admin__page-section order-view-account-information">
+        <div class="admin__page-section-title">
+            <span class="title"><?= $escaper->escapeHtml(__('Quote & Account Information')) ?></span>
+        </div>
+        <div class="admin__page-section-content">
+            <div class="admin__page-section-item order-information">
+                <div class="admin__page-section-item-title">
+                    <span class="title"><?= $escaper->escapeHtml(__('Quote # %1', (int)$quote['entity_id'])) ?></span>
+                </div>
+                <div class="admin__page-section-item-content">
+                    <table class="admin__table-secondary order-information-table">
+                        <tr>
+                            <th><?= $escaper->escapeHtml(__('Status')) ?></th>
+                            <td><span class="b2b-quote-badge <?= $escaper->escapeHtmlAttr($details->getStatusSeverity($status)) ?>"><span><?= $escaper->escapeHtml($details->getAdminStatusLabel($status)) ?></span></span></td>
+                        </tr>
+                        <tr>
+                            <th><?= $escaper->escapeHtml(__('Requested')) ?></th>
+                            <td><?= $escaper->escapeHtml($block->formatDate($quote['created_at'], \IntlDateFormatter::MEDIUM, true)) ?></td>
+                        </tr>
+                        <tr>
+                            <th><?= $escaper->escapeHtml(__('Last Update')) ?></th>
+                            <td><?= $escaper->escapeHtml($block->formatDate($quote['updated_at'], \IntlDateFormatter::MEDIUM, true)) ?></td>
+                        </tr>
+                        <?php if ($active): ?>
+                            <tr>
+                                <th><label for="b2b-quote-expires"><?= $escaper->escapeHtml(__('Offer Valid Until')) ?></label></th>
+                                <td><input id="b2b-quote-expires" type="date" class="admin__control-text b2b-quote-expires" name="expires_at" required
+                                           value="<?= $escaper->escapeHtmlAttr($details->getExpiryInput($quote)) ?>"/></td>
+                            </tr>
+                        <?php elseif ($quote['expires_at']): ?>
+                            <tr>
+                                <th><?= $escaper->escapeHtml(__('Offer Valid Until')) ?></th>
+                                <td><?= $escaper->escapeHtml($block->formatDate($quote['expires_at'], \IntlDateFormatter::MEDIUM)) ?></td>
+                            </tr>
+                        <?php endif; ?>
+                        <?php if ($orderNumber !== ''): ?>
+                            <tr>
+                                <th><?= $escaper->escapeHtml(__('Order')) ?></th>
+                                <td><a href="<?= $escaper->escapeUrl($block->getUrl('sales/order/view', ['order_id' => (int)$quote['order_id']])) ?>">#<?= $escaper->escapeHtml($orderNumber) ?></a></td>
+                            </tr>
+                        <?php endif; ?>
+                    </table>
+                </div>
+            </div>
+            <div class="admin__page-section-item order-account-information">
+                <div class="admin__page-section-item-title">
+                    <span class="title"><?= $escaper->escapeHtml(__('Account Information')) ?></span>
+                </div>
+                <div class="admin__page-section-item-content">
+                    <table class="admin__table-secondary order-account-information-table">
+                        <tr>
+                            <th><?= $escaper->escapeHtml(__('Company')) ?></th>
+                            <td><?= $escaper->escapeHtml((string)$quote['company_name']) ?></td>
+                        </tr>
+                        <tr>
+                            <th><?= $escaper->escapeHtml(__('Customer Name')) ?></th>
+                            <td><a href="<?= $escaper->escapeUrl($block->getUrl('customer/index/edit', ['id' => (int)$quote['customer_id']])) ?>"><?= $escaper->escapeHtml((string)$quote['customer_name']) ?></a></td>
+                        </tr>
+                        <tr>
+                            <th><?= $escaper->escapeHtml(__('Email')) ?></th>
+                            <td><a href="mailto:<?= $escaper->escapeHtmlAttr((string)$quote['customer_email']) ?>"><?= $escaper->escapeHtml((string)$quote['customer_email']) ?></a></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="admin__page-section">
+        <div class="admin__page-section-title">
+            <span class="title"><?= $escaper->escapeHtml(__('Items Quoted')) ?></span>
+        </div>
+        <?php if ($active): ?>
+            <div class="b2b-quote-apply-all">
+                <label for="b2b-quote-percent"><?= $escaper->escapeHtml(__('Discount all lines by')) ?></label>
+                <div class="admin__control-addon">
+                    <input id="b2b-quote-percent" type="number" class="admin__control-text" min="0" max="100" step="0.1"/>
+                    <label class="admin__addon-suffix" for="b2b-quote-percent"><span>%</span></label>
+                </div>
+                <button id="b2b-quote-apply" type="button" class="action-secondary"><span><?= $escaper->escapeHtml(__('Apply')) ?></span></button>
+            </div>
+        <?php endif; ?>
+        <div class="admin__table-wrapper">
+            <table class="data-table b2b-quote-items">
+                <thead>
+                    <tr class="headings">
+                        <th class="col-product"><span><?= $escaper->escapeHtml(__('Product')) ?></span></th>
+                        <th class="col-price"><span><?= $escaper->escapeHtml(__('Catalog Price')) ?></span></th>
+                        <th class="col-ordered-qty"><span><?= $escaper->escapeHtml(__('Qty')) ?></span></th>
+                        <th class="col-price"><span><?= $escaper->escapeHtml(__('Negotiated Price')) ?></span></th>
+                        <th class="col-discont"><span><?= $escaper->escapeHtml(__('Discount')) ?></span></th>
+                        <th class="col-total last"><span><?= $escaper->escapeHtml(__('Row Total')) ?></span></th>
+                    </tr>
+                </thead>
+                <?php foreach ($items as $item): ?>
+                    <?php $negotiated = $item['base_negotiated_price']; ?>
+                    <tbody class="even">
+                        <tr data-qty="<?= (float)$item['qty'] ?>" data-catalog="<?= (float)$item['base_catalog_price'] ?>">
+                            <td class="col-product">
+                                <div class="product-title"><a href="<?= $escaper->escapeUrl($block->getUrl('catalog/product/edit', ['id' => (int)$item['product_id']])) ?>"><?= $escaper->escapeHtml((string)$item['name']) ?></a></div>
+                                <div class="product-sku-block"><span><?= $escaper->escapeHtml(__('SKU')) ?>:</span> <?= $escaper->escapeHtml((string)$item['sku']) ?></div>
+                            </td>
+                            <td class="col-price"><?= $escaper->escapeHtml($details->formatPrice($item['base_catalog_price'], $quote)) ?></td>
+                            <td class="col-ordered-qty"><?= (float)$item['qty'] ?></td>
+                            <td class="col-price">
+                                <?php if ($active): ?>
+                                    <div class="admin__control-addon">
+                                        <input type="text" inputmode="decimal" pattern="[0-9]+([.,][0-9]{1,4})?" class="admin__control-text b2b-quote-price" required
+                                               aria-label="<?= $escaper->escapeHtmlAttr(__('Negotiated price for %1', $item['sku'])) ?>"
+                                               name="price[<?= (int)$item['item_id'] ?>]"
+                                               value="<?= $escaper->escapeHtmlAttr(number_format((float)($negotiated ?? $item['base_catalog_price']), 2, '.', '')) ?>"/>
+                                        <label class="admin__addon-prefix"><span><?= $escaper->escapeHtml($currency) ?></span></label>
+                                    </div>
+                                <?php else: ?>
+                                    <?= $escaper->escapeHtml($details->formatPrice($negotiated, $quote)) ?>
+                                <?php endif; ?>
+                            </td>
+                            <td class="col-discont b2b-quote-discount"><?= $escaper->escapeHtml($details->getDiscountPercent($item['base_catalog_price'], $negotiated)) ?></td>
+                            <td class="col-total last b2b-quote-row-total"><?= $escaper->escapeHtml($details->formatPrice($negotiated === null ? null : (float)$negotiated * (float)$item['qty'], $quote)) ?></td>
+                        </tr>
+                    </tbody>
+                <?php endforeach; ?>
+            </table>
+        </div>
+    </section>
+
+    <section class="admin__page-section">
+        <div class="admin__page-section-title">
+            <span class="title"><?= $escaper->escapeHtml(__('Quote Total')) ?></span>
+        </div>
+        <div class="admin__page-section-content">
+            <div class="admin__page-section-item order-comments-history">
+                <div class="admin__page-section-item-title">
+                    <span class="title"><?= $escaper->escapeHtml(__('Comments History')) ?></span>
+                </div>
+                <div class="admin__page-section-item-content">
                     <?php if ($active): ?>
-                        <input type="number" class="admin__control-text" step="0.0001" min="0"
-                               name="price[<?= (int)$item['item_id'] ?>]"
-                               value="<?= $escaper->escapeHtmlAttr((string)($item['base_negotiated_price'] ?? $item['base_catalog_price'])) ?>"/>
-                    <?php else: ?>
-                        <?= $escaper->escapeHtml($details->formatPrice($item['base_negotiated_price'], $quote)) ?>
+                        <div class="admin__field">
+                            <label class="admin__field-label" for="b2b-quote-comment"><span><?= $escaper->escapeHtml(__('Comment for the buyer')) ?></span></label>
+                            <div class="admin__field-control">
+                                <textarea id="b2b-quote-comment" class="admin__control-textarea" name="comment" rows="3" maxlength="2000"></textarea>
+                                <div class="admin__field-note"><span><?= $escaper->escapeHtml(__('Sent with the offer, with a decline as the reason, or on its own with Send Comment Only.')) ?></span></div>
+                            </div>
+                        </div>
                     <?php endif; ?>
-                </td>
-            </tr>
-        <?php endforeach; ?>
-        </tbody>
-        <tfoot><tr>
-            <th colspan="3"><?= $escaper->escapeHtml(__('Subtotal')) ?></th>
-            <td><?= $escaper->escapeHtml($details->formatPrice($quote['base_request_subtotal'], $quote)) ?></td>
-            <td><?= $escaper->escapeHtml($details->formatPrice($quote['base_offer_subtotal'], $quote)) ?></td>
-        </tr></tfoot>
-    </table>
-
-    <h2><?= $escaper->escapeHtml(__('History')) ?></h2>
-    <ul>
-        <?php foreach ($details->getHistory($quote) as $entry): ?>
-            <li>
-                <strong><?= $escaper->escapeHtml($details->getAuthorLabel((string)$entry['author_type'])) ?></strong>,
-                <?= $escaper->escapeHtml((string)$entry['created_at']) ?>,
-                <?= $escaper->escapeHtml($details->getStatusLabel((string)$entry['status'])) ?>
-                <?php if ($entry['comment']): ?><br><?= nl2br($escaper->escapeHtml((string)$entry['comment'])) ?><?php endif; ?>
-            </li>
-        <?php endforeach; ?>
-    </ul>
-
-    <?php if ($active): ?>
-        <p>
-            <label for="b2b-quote-expires"><?= $escaper->escapeHtml(__('Offer valid until')) ?></label>
-            <input id="b2b-quote-expires" type="date" class="admin__control-text" name="expires_at"
-                   value="<?= $escaper->escapeHtmlAttr($details->getExpiryInput($quote)) ?>"/>
-        </p>
-        <p>
-            <label for="b2b-quote-comment"><?= $escaper->escapeHtml(__('Comment for the buyer')) ?></label><br>
-            <textarea id="b2b-quote-comment" class="admin__control-textarea" name="comment" rows="3" cols="80" maxlength="2000"></textarea>
-        </p>
-        <button type="submit" name="do" value="offer" class="action-primary"><span><?= $escaper->escapeHtml(__('Send Offer')) ?></span></button>
-        <button type="submit" name="do" value="comment" class="action-secondary"><span><?= $escaper->escapeHtml(__('Send Comment Only')) ?></span></button>
-        <button type="submit" name="do" value="decline" class="action-secondary"><span><?= $escaper->escapeHtml(__('Decline')) ?></span></button>
-    <?php endif; ?>
+                    <ol class="b2b-quote-history">
+                        <?php foreach ($details->getHistoryNewestFirst($quote) as $entry): ?>
+                            <?php $author = (string)$entry['author_type']; ?>
+                            <li class="b2b-quote-history-item b2b-quote-history-<?= $escaper->escapeHtmlAttr($author) ?>">
+                                <div class="b2b-quote-history-meta">
+                                    <span class="b2b-quote-history-author"><?= $escaper->escapeHtml($details->getAuthorLabel($author)) ?></span>
+                                    <span class="b2b-quote-history-status"><?= $escaper->escapeHtml($details->getAdminStatusLabel((string)$entry['status'])) ?></span>
+                                    <time class="b2b-quote-history-date" datetime="<?= $escaper->escapeHtmlAttr((string)$entry['created_at']) ?>"><?= $escaper->escapeHtml($block->formatDate($entry['created_at'], \IntlDateFormatter::MEDIUM, true)) ?></time>
+                                </div>
+                                <?php if ($entry['comment']): ?>
+                                    <div class="b2b-quote-history-comment"><?= nl2br($escaper->escapeHtml((string)$entry['comment'])) ?></div>
+                                <?php endif; ?>
+                            </li>
+                        <?php endforeach; ?>
+                    </ol>
+                </div>
+            </div>
+            <div class="admin__page-section-item order-totals">
+                <div class="admin__page-section-item-title">
+                    <span class="title"><?= $escaper->escapeHtml(__('Quote Totals')) ?></span>
+                </div>
+                <table class="data-table admin__table-secondary order-subtotal-table">
+                    <tbody>
+                        <tr>
+                            <td class="label"><?= $escaper->escapeHtml(__('Catalog Subtotal')) ?></td>
+                            <td><span class="price"><?= $escaper->escapeHtml($details->formatPrice($quote['base_request_subtotal'], $quote)) ?></span></td>
+                        </tr>
+                        <tr>
+                            <td class="label"><?= $escaper->escapeHtml(__('Discount')) ?></td>
+                            <td><span class="price" id="b2b-quote-total-discount"><?= $escaper->escapeHtml($quote['base_offer_subtotal'] === null ? '—' : $details->formatPrice((float)$quote['base_offer_subtotal'] - (float)$quote['base_request_subtotal'], $quote)) ?></span></td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr class="col-0">
+                            <td class="label"><strong><?= $escaper->escapeHtml(__('Offer Subtotal')) ?></strong></td>
+                            <td><strong><span class="price" id="b2b-quote-total-offer"><?= $escaper->escapeHtml($details->formatPrice($quote['base_offer_subtotal'], $quote)) ?></span></strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+                <?php if ($active): ?>
+                    <p class="admin__field-note"><?= $escaper->escapeHtml(__('Shipping and tax are calculated at checkout.')) ?></p>
+                <?php endif; ?>
+            </div>
+        </div>
+    </section>
 </form>
+<?php if ($active): ?>
+<?php
+$labels = json_encode([
+    'decline' => (string)__('Decline this quote request? The buyer is emailed, with your comment as the reason.'),
+    'comment' => (string)__('Enter a comment for the buyer.'),
+]);
+$currencyJson = json_encode($currency);
+$script = <<<JS
+(function () {
+    var form = document.getElementById('b2b-quote-form');
+    var labels = {$labels};
+    var money = new Intl.NumberFormat('en-US', {style: 'currency', currency: {$currencyJson}});
+    var rows = form.querySelectorAll('tr[data-catalog]');
+
+    function refresh() {
+        var catalog = 0, offer = 0;
+        rows.forEach(function (row) {
+            var input = row.querySelector('.b2b-quote-price');
+            var qty = parseFloat(row.dataset.qty), list = parseFloat(row.dataset.catalog);
+            var price = parseFloat(input.value.replace(',', '.'));
+            catalog += list * qty;
+            if (isNaN(price)) {
+                row.querySelector('.b2b-quote-discount').textContent = '';
+                row.querySelector('.b2b-quote-row-total').textContent = '—';
+                return;
+            }
+            offer += price * qty;
+            row.querySelector('.b2b-quote-discount').textContent =
+                list > 0 ? (Math.round((1 - price / list) * 1000) / 10) + '%' : '';
+            row.querySelector('.b2b-quote-row-total').textContent = money.format(price * qty);
+        });
+        document.getElementById('b2b-quote-total-offer').textContent = money.format(offer);
+        document.getElementById('b2b-quote-total-discount').textContent = money.format(offer - catalog);
+    }
+
+    form.addEventListener('input', function (event) {
+        if (event.target.classList.contains('b2b-quote-price')) {
+            refresh();
+        }
+    });
+    document.getElementById('b2b-quote-apply').addEventListener('click', function () {
+        var percent = parseFloat(document.getElementById('b2b-quote-percent').value);
+        if (isNaN(percent)) {
+            return;
+        }
+        rows.forEach(function (row) {
+            row.querySelector('.b2b-quote-price').value =
+                (Math.round(parseFloat(row.dataset.catalog) * (100 - percent)) / 100).toFixed(2);
+        });
+        refresh();
+    });
+
+    window.tonyappsB2bQuoteSubmit = function (action) {
+        var comment = form.elements.comment.value.trim();
+        if (action === 'comment' && !comment) {
+            alert(labels.comment);
+            form.elements.comment.focus();
+            return;
+        }
+        if (action === 'decline' && !confirm(labels.decline)) {
+            return;
+        }
+        if (action === 'offer' && !form.reportValidity()) {
+            return;
+        }
+        form.querySelectorAll('.b2b-quote-price').forEach(function (input) {
+            input.value = input.value.replace(',', '.');
+        });
+        form.elements['do'].value = action;
+        form.submit();
+    };
+    refresh();
+})();
+JS;
+?>
+<?= /* @noEscape */ $secureRenderer->renderTag('script', [], $script, false) ?>
+<?php endif; ?>

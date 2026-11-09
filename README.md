@@ -20,7 +20,7 @@ only in Commerce B2B (`Magento_NegotiableQuote`).
 | Buyer side (storefront) | **My Account > Quotes**: a list, and a quote page with lines, prices, total, thread and expiry. Actions: comment and send back, close, and **Checkout with this quote**. Pages are not full-page cached. |
 | Checkout at the agreed price | **Checkout with this quote** replaces the current cart with the quote lines and sets each line's negotiated price as Magento's custom price, so totals, tax and every payment method keep working. If the cart was not empty, the buyer confirms the replacement first. The cart remembers the quote id. |
 | Locked lines | At order submit (`QuoteManagement::submit`, the same hook B2bOrderApproval uses), a cart that carries a quote id must still match the quote lines and qty, and the quote must still be `offered` and not expired. Otherwise checkout is refused with a message. The cart page shows a **Leave quote** button that removes the negotiated prices and the link. |
-| Discounts | Cart price rules and coupons do not apply to lines of a negotiated cart (`no_discount` on the items). The negotiated price is the final item price. |
+| Discounts | Cart price rules and coupons do not apply to lines of a negotiated cart; Tonyapps_FreeGift gifts still do (see the 2026-11-09 QA fix). The negotiated price is the final item price. |
 | Shipping | Calculated normally at checkout. It is not negotiated. |
 | Currency and tax | Negotiated prices are stored in the website base currency and converted to the cart currency when applied. They are entered in the same tax mode (incl. or excl. tax) as catalog prices. |
 | After the order | The quote becomes `ordered` and stores the order id. Both quote pages link to the order. An ordered quote cannot be used again. |
@@ -63,6 +63,15 @@ only in Commerce B2B (`Magento_NegotiableQuote`).
 - The cart matches the quote when it has the same SKUs at the same quantities, each still at its negotiated price, compared to 2 decimals in the cart currency. Tonyapps_FreeGift gift lines are ignored when requesting, matching and leaving a quote.
 - A buyer reply, a close, a decline or expiry takes away the cart's right to the prices. The cart page then shows why and offers **Leave Quote**. **Leave Quote** is not gated by the permission or the enable switch, so a buyer who loses either can still return the cart to regular prices.
 - A linked cart cannot request a new quote until the buyer leaves the current one.
+
+## 2026-11-09 QA fix
+
+- Negotiated lines are marked with the cart item option `tonyapps_b2b_quote` instead of `no_discount`. Core skips `no_discount` lines for every cart price rule, which also stopped Tonyapps_FreeGift rules, so a quoted cart over the gift threshold got no gift. A plugin on `Magento\SalesRule\Model\Validator::process()` now lets only free-gift rules reach a quoted line; discounts and coupons still never apply to it. **Leave Quote** removes the option (and still clears `no_discount` on carts loaded before this change).
+
+## 2026-11-09 admin UX
+
+- The quote page follows the admin order view: header buttons (**Back**, **Decline** with a confirmation, **Send Comment Only**, **Send Offer**), *Quote & Account Information* (status badge, dates, linked order number, company and buyer), *Items Quoted* (SKU under the name, catalog and negotiated price, discount % and row total that update as prices are typed, and **Discount all lines by X%**), *Comments History* newest first and *Quote Totals* with the offer's validity date.
+- The admin shows statuses from the seller's side (*Awaiting your offer*, *Offer sent*, *Closed by buyer*, ...) as grid badges; the quote list uses the same badges and names its amount columns *Catalog Subtotal* and *Offer Subtotal*.
 
 ## Install
 
