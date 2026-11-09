@@ -80,6 +80,18 @@ the latest comment in a highlighted box, the offer's validity date and a button.
 the quote in the admin (no secret key, so it works from an email). New template variables: `items`,
 `request_subtotal`, `offer_subtotal`, `has_offer`, `valid_until`, `admin_url`.
 
+## Emails
+
+Screenshots of the emails as sent (Luma theme, 2026-11-09). Source images are in `docs/emails/`.
+
+**Offer ready (to the buyer)**
+
+![Offer ready (to the buyer)](docs/emails/quote-to-buyer.png)
+
+**New quote request (to the seller)**
+
+![New quote request (to the seller)](docs/emails/quote-to-seller.png)
+
 ## Install
 
 Install `tonyapps/module-b2b-quotes` with `tonyapps/module-b2b`, run `bin/magento setup:upgrade`, enable **Stores > Configuration > Tonyapps > B2B Quotes**, and give company roles the **Request quotes** permission. Company administrators always have it.
