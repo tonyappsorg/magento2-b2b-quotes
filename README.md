@@ -99,3 +99,9 @@ Install `tonyapps/module-b2b-quotes` with `tonyapps/module-b2b`, run `bin/magent
 ## Tests
 
 `vendor/bin/phpunit -c dev/tests/unit/phpunit.xml.dist app/code/Tonyapps/B2bQuotes/Test/Unit`
+
+## Redesigning the emails
+
+This module's emails can be redesigned visually with the [Email Designer](https://github.com/tonyappsorg/magento2-email-designer) (`Tonyapps_EmailDesigner`): open **Marketing › Communications ›
+Email Designer**, start a design for the email and save it. Then pick the saved design in this module's email
+template setting under **Stores › Configuration**. The default template is used until a design is picked.
