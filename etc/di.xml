@@ -7,4 +7,44 @@
     <type name="Magento\SalesRule\Model\Validator">
         <plugin name="tonyapps_b2b_quotes_negotiated_lines" type="Tonyapps\B2bQuotes\Plugin\SalesRule\NegotiatedLinesPlugin"/>
     </type>
+    <!-- Tonyapps_EmailDesigner: blocks and starter designs for the quote emails. Ignored without that module. -->
+    <type name="Tonyapps\EmailDesigner\Model\BlockPool">
+        <arguments>
+            <argument name="blocks" xsi:type="array">
+                <item name="b2b_quotes_items" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Quote items</item>
+                    <item name="templates" xsi:type="array">
+                        <item name="0" xsi:type="string">tonyapps_b2b_quotes_email_seller_template</item>
+                        <item name="1" xsi:type="string">tonyapps_b2b_quotes_email_buyer_template</item>
+                    </item>
+                    <item name="directive" xsi:type="string"><![CDATA[<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="border:1px solid #e5e5e5;"><tr><th align="left" style="padding:10px 12px;background:#f2f2f2;font-size:12px;font-weight:600;text-transform:uppercase;color:#666666;">{{trans "Product"}}</th><th align="right" style="padding:10px 12px;background:#f2f2f2;font-size:12px;font-weight:600;text-transform:uppercase;color:#666666;">{{trans "Qty"}}</th><th align="right" style="padding:10px 12px;background:#f2f2f2;font-size:12px;font-weight:600;text-transform:uppercase;color:#666666;">{{trans "Catalog Price"}}</th><th align="right" style="padding:10px 12px;background:#f2f2f2;font-size:12px;font-weight:600;text-transform:uppercase;color:#666666;">{{trans "Quoted Price"}}</th></tr>{{for item in items}}<tr><td style="padding:12px;border-bottom:1px solid #e5e5e5;"><strong>{{var item.name}}</strong><br><span style="font-size:12px;color:#999999;">{{var item.sku}}</span></td><td align="right" style="padding:12px;border-bottom:1px solid #e5e5e5;">{{var item.qty}}</td><td align="right" style="padding:12px;border-bottom:1px solid #e5e5e5;white-space:nowrap;color:#999999;">{{var item.catalog_price}}</td><td align="right" style="padding:12px;border-bottom:1px solid #e5e5e5;white-space:nowrap;font-weight:600;">{{var item.quoted_price}}</td></tr>{{/for}}<tr><td colspan="2" style="padding:12px;font-weight:600;">{{trans "Subtotal"}}</td><td align="right" style="padding:12px;white-space:nowrap;color:#999999;">{{var request_subtotal}}</td><td align="right" style="padding:12px;white-space:nowrap;font-weight:600;">{{var offer_subtotal}}</td></tr></table>]]></item>
+                </item>
+                <item name="b2b_quotes_seller_comment" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Seller comment</item>
+                    <item name="templates" xsi:type="array">
+                        <item name="0" xsi:type="string">tonyapps_b2b_quotes_email_buyer_template</item>
+                    </item>
+                    <item name="directive" xsi:type="string"><![CDATA[{{depend comment}}<table width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr><td style="padding:16px 20px;background:#f2f7fb;border-left:4px solid #1979c3;border-radius:2px;"><p style="margin:0 0 4px;font-weight:600;">{{trans "From the seller"}}</p><p style="margin:0;">{{var comment}}</p></td></tr></table>{{/depend}}]]></item>
+                </item>
+                <item name="b2b_quotes_buyer_comment" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Buyer comment</item>
+                    <item name="templates" xsi:type="array">
+                        <item name="0" xsi:type="string">tonyapps_b2b_quotes_email_seller_template</item>
+                    </item>
+                    <item name="directive" xsi:type="string"><![CDATA[{{depend comment}}<table width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr><td style="padding:16px 20px;background:#fff8e6;border-left:4px solid #f5a623;border-radius:2px;"><p style="margin:0 0 4px;font-weight:600;">{{trans "From the buyer"}}</p><p style="margin:0;">{{var comment}}</p></td></tr></table>{{/depend}}]]></item>
+                </item>
+                <item name="b2b_quotes_offer_validity" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Offer validity</item>
+                    <item name="templates" xsi:type="array">
+                        <item name="0" xsi:type="string">tonyapps_b2b_quotes_email_buyer_template</item>
+                    </item>
+                    <item name="directive" xsi:type="string"><![CDATA[{{depend has_offer}}<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#f8f8f8;border:1px solid #e5e5e5;border-radius:4px;"><tr><td style="padding:12px 16px;color:#666666;width:40%;">{{trans "Offer valid until"}}</td><td style="padding:12px 16px;font-weight:600;">{{var valid_until}}</td></tr></table>{{/depend}}]]></item>
+                </item>
+            </argument>
+            <argument name="starters" xsi:type="array">
+                <item name="tonyapps_b2b_quotes_email_seller_template" xsi:type="string">Tonyapps_B2bQuotes::view/adminhtml/email_designer/seller_notice.mjml</item>
+                <item name="tonyapps_b2b_quotes_email_buyer_template" xsi:type="string">Tonyapps_B2bQuotes::view/adminhtml/email_designer/buyer_notice.mjml</item>
+            </argument>
+        </arguments>
+    </type>
 </config>

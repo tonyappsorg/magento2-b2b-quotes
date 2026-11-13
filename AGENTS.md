@@ -137,6 +137,10 @@ Cart item option `tonyapps_b2b_quote` marks negotiated lines.
 - Email template variables: `items`, `request_subtotal`, `offer_subtotal`, `has_offer`, `valid_until`, `admin_url`.
 - Templates can be replaced by a `Tonyapps_EmailDesigner` design (**Marketing › Communications › Email Designer**)
   picked in the email template setting.
+- Email Designer (`etc/di.xml`, `BlockPool`): blocks `b2b_quotes_items` (lines + subtotals, both emails),
+  `b2b_quotes_seller_comment` (buyer email) and `b2b_quotes_buyer_comment` (seller email) for the `{{depend comment}}`
+  box, `b2b_quotes_offer_validity` (`{{depend has_offer}}`, buyer email); starter designs in
+  `view/adminhtml/email_designer/{seller,buyer}_notice.mjml`.
 
 ## Decisions and constraints
 
@@ -174,6 +178,11 @@ vendor/bin/phpunit -c dev/tests/unit/phpunit.xml.dist app/code/Tonyapps/B2bQuote
   PHPUnit config).
 
 ## Change history
+
+### 2026-11-13 Email Designer blocks and starter designs
+
+Registered the quote lines table, comment boxes and offer validity as Email Designer blocks and a starter design for
+each email, a copy of the built-in template. No dependency on `Tonyapps_EmailDesigner`.
 
 ### 2026-11-13 package metadata
 

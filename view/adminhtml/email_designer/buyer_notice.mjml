@@ -1,0 +1,9 @@
+        <mj-text font-size="12px" font-weight="600" letter-spacing="1px" text-transform="uppercase" color="#1979c3">{{trans "Quote #%id" id=$quote_id}}</mj-text>
+        <mj-text font-size="24px" font-weight="600">{{var message}}</mj-text>
+        <mj-text>{{trans "Hi %name, there is news about your price request." name=$buyer_name}}</mj-text>
+        <mj-raw ta-block="b2b_quotes_seller_comment"></mj-raw>
+        <mj-raw ta-block="b2b_quotes_items"></mj-raw>
+        <mj-raw ta-block="b2b_quotes_offer_validity"></mj-raw>
+        <mj-button background-color="#1979c3" border-radius="3px" font-size="16px" font-weight="600" inner-padding="14px 32px" href="{{var quote_url}}">{{trans "View your quote"}}</mj-button>
+        <mj-divider border-width="1px" border-color="#e5e5e5"></mj-divider>
+        <mj-text font-size="12px" color="#999999">{{trans "From the quote page you can check out at the quoted prices, reply to the seller or close the quote."}}</mj-text>

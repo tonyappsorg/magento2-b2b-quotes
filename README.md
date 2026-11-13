@@ -93,7 +93,9 @@ it).
 
 Emails can be redesigned with the [Email Designer](https://github.com/tonyappsorg/magento2-email-designer): open
 **Marketing › Communications › Email Designer**, start a design for the email and save it, then pick the saved
-design in the email template setting above. The built-in template is used until a design is picked.
+design in the email template setting above. The built-in template is used until a design is picked. A new design
+starts from a ready-made copy of the quote email, with the quote lines, comments and offer validity as drag-and-drop
+blocks.
 
 ## For developers
 
