@@ -161,8 +161,6 @@ Other:
 
 - Admin list has no filtering or sorting.
 - Phase 3 manual QA not done yet; phase 4 awaiting approval.
-- `composer.json` does not list `magento/module-sales-rule` although `NegotiatedLinesPlugin` plugs
-  `Magento\SalesRule\Model\Validator`.
 
 ## Tests
 
@@ -176,6 +174,10 @@ vendor/bin/phpunit -c dev/tests/unit/phpunit.xml.dist app/code/Tonyapps/B2bQuote
   PHPUnit config).
 
 ## Change history
+
+### 2026-11-13 package metadata
+
+`composer.json` requires `magento/module-sales-rule` (`NegotiatedLinesPlugin`) and `magento/module-catalog` (`QuoteCheckout`).
 
 ### 2026-11-09 email redesign
 
