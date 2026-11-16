@@ -2,7 +2,7 @@
 
 Read this before changing the module. Workspace-wide rules are in ../AGENTS.md.
 
-Package `tonyapps/module-b2b-quotes` v0.1.0, GPL-3.0-or-later. Negotiable quotes for `Tonyapps_B2b` company accounts on
+Package `tonyapps/module-b2b-quotes` 1.0.0, GPL-3.0-or-later. Negotiable quotes for `Tonyapps_B2b` company accounts on
 Magento Open Source (Adobe sells this only in Commerce B2B, `Magento_NegotiableQuote`).
 
 Terminology: "quote" = the B2B price request (`tonyapps_b2b_quote`). Magento's own `quote` table, the cart, is called
