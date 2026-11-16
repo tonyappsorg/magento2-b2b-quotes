@@ -47,4 +47,24 @@
             </argument>
         </arguments>
     </type>
+    <!-- Tonyapps_EmailDesigner: real-data preview of the quote emails. Ignored without that module. -->
+    <type name="Tonyapps\EmailDesigner\Model\PreviewPool">
+        <arguments>
+            <argument name="providers" xsi:type="array">
+                <item name="b2b_quotes_emails" xsi:type="array">
+                    <item name="templates" xsi:type="array">
+                        <item name="0" xsi:type="string">tonyapps_b2b_quotes_email_seller_template</item>
+                        <item name="1" xsi:type="string">tonyapps_b2b_quotes_email_buyer_template</item>
+                    </item>
+                    <item name="provider" xsi:type="object">Tonyapps\B2bQuotes\Model\EmailPreview</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+    <!-- Own storefront URL builder for email links: not shared, so its setScope() never changes the shared one. -->
+    <type name="Tonyapps\B2bQuotes\Model\Notifier">
+        <arguments>
+            <argument name="frontendUrl" xsi:type="object" shared="false">Magento\Framework\Url</argument>
+        </arguments>
+    </type>
 </config>

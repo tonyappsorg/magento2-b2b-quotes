@@ -141,6 +141,12 @@ Cart item option `tonyapps_b2b_quote` marks negotiated lines.
   `b2b_quotes_seller_comment` (buyer email) and `b2b_quotes_buyer_comment` (seller email) for the `{{depend comment}}`
   box, `b2b_quotes_offer_validity` (`{{depend has_offer}}`, buyer email); starter designs in
   `view/adminhtml/email_designer/{seller,buyer}_notice.mjml`.
+- Email Designer real-data preview (`etc/di.xml`, `PreviewPool`): `Model\EmailPreview` offers recent quotes whose
+  latest history entry is by the other side (buyer for the seller email, seller for the buyer email), falling back to
+  any quote. The message is the one the controller passes for that entry (new request / buyer replied / buyer closed;
+  quote ready / declined / seller commented), otherwise "New quote request" (seller) or the message for the quote's
+  status (buyer). A seller comment on an offered quote reads as the offer. Variables come from
+  `Notifier::getVariables()`, which the notifier itself sends. `getStoreId()` returns the store it is sent from. Read-only.
 
 ## Decisions and constraints
 
@@ -172,12 +178,19 @@ Other:
 vendor/bin/phpunit -c dev/tests/unit/phpunit.xml.dist app/code/Tonyapps/B2bQuotes/Test/Unit
 ```
 
-- Unit tests: `QuoteService`, `QuoteCheckout`, `Notifier`, `NegotiatedLinesPlugin`, `QuotesLink`, admin `Toolbar`,
+- Unit tests: `QuoteService`, `QuoteCheckout`, `Notifier`, `EmailPreview`, `NegotiatedLinesPlugin`, `QuotesLink`, admin `Toolbar`,
   `QuoteDetails`, account-page layout, email templates.
 - Integration test for the submit guard: `Test/Integration/Model/QuoteCheckoutFlowTest.php` (Magento integration
   PHPUnit config).
 
 ## Change history
+
+### 2026-11-15 storefront links in admin-sent emails
+Built in an admin request (including the Email Designer preview), `quote_url` in the buyer email after a seller action came out as an admin link with a secret key, because `Store::getUrl()` uses the area's `UrlInterface`. `Notifier` now builds storefront links with its own non-shared `Magento\Framework\Url` (`frontendUrl`, `etc/di.xml`) scoped to the email's store; tests in `NotifierTest`.
+
+### 2026-11-15 Email Designer real-data preview
+Added `Model\EmailPreview` for the Email Designer's real-data preview and test send of both quote emails. The
+notifier's variables moved into `Notifier::getVariables()`, shared with the preview; sending unchanged.
 
 ### 2026-11-13 Email Designer blocks and starter designs
 

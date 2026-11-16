@@ -96,6 +96,7 @@ Emails can be redesigned with the [Email Designer](https://github.com/tonyappsor
 design in the email template setting above. The built-in template is used until a design is picked. A new design
 starts from a ready-made copy of the quote email, with the quote lines, comments and offer validity as drag-and-drop
 blocks.
+The designer can preview and test-send the design with a real quote from your store.
 
 ## For developers
 

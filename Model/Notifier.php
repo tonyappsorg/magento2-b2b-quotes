@@ -8,6 +8,7 @@ use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\App\Area;
 use Magento\Framework\Mail\Template\TransportBuilder;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
+use Magento\Framework\Url;
 use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
 use Tonyapps\B2b\Api\CompanyRepositoryInterface;
@@ -27,7 +28,9 @@ class Notifier
         private readonly StoreManagerInterface $storeManager,
         private readonly LoggerInterface $logger,
         private readonly PriceCurrencyInterface $priceCurrency,
-        private readonly BackendUrl $backendUrl
+        private readonly BackendUrl $backendUrl,
+        // Storefront URL builder: the injected UrlInterface is the admin one in admin requests (links get the admin path and a secret key).
+        private readonly Url $frontendUrl
     ) {
     }
 
@@ -65,22 +68,11 @@ class Notifier
             if (!$template || !$to) {
                 return;
             }
-            $history = $this->quotes->getHistory($quoteId);
             $storeId = (int)$quote['store_id'];
             $this->transportBuilder
                 ->setTemplateIdentifier($template)
                 ->setTemplateOptions(['area' => Area::AREA_FRONTEND, 'store' => $storeId])
-                // Email {{trans}} and {{var}} escape values themselves; escaping here doubles it.
-                ->setTemplateVars([
-                    'quote_id' => $quoteId,
-                    'message' => $message,
-                    'comment' => (string)(end($history)['comment'] ?? ''),
-                    'company_name' => (string)($quote['company_name'] ?? ''),
-                    'buyer_name' => (string)$quote['customer_name'],
-                    'quote_url' => $this->storeManager->getStore($storeId)->getUrl('b2bquotes/quote/view', ['id' => $quoteId]),
-                    // No secret key: it would be minted for this request, not the reader's admin session.
-                    'admin_url' => $this->backendUrl->getUrl('tonyapps_b2bquotes/quote/edit', ['id' => $quoteId, '_nosid' => true, '_nosecret' => true]),
-                ] + $this->quoteVars($quote))
+                ->setTemplateVars($this->getVariables($quote, $message))
                 ->setFromByScope('sales', $storeId)
                 ->addTo($to);
             foreach (array_filter($cc) as $email) {
@@ -90,6 +82,31 @@ class Notifier
         } catch (\Exception $exception) {
             $this->logger->error('B2B quote notification failed: ' . $exception->getMessage());
         }
+    }
+
+    /**
+     * Template variables of a quote email (seller or buyer) as sent; also the Email Designer's real-data preview.
+     *
+     * @param array<string, mixed> $quote a QuoteRequest::getById() row
+     * @param string $message what happened, e.g. "Your quote is ready"
+     * @return array<string, mixed>
+     */
+    public function getVariables(array $quote, string $message): array
+    {
+        $quoteId = (int)$quote['entity_id'];
+        $history = $this->quotes->getHistory($quoteId);
+        // Email {{trans}} and {{var}} escape values themselves; escaping here doubles it.
+        return [
+            'quote_id' => $quoteId,
+            'message' => $message,
+            'comment' => (string)(end($history)['comment'] ?? ''),
+            'company_name' => (string)($quote['company_name'] ?? ''),
+            'buyer_name' => (string)$quote['customer_name'],
+            'quote_url' => $this->frontendUrl->setScope((int)$quote['store_id'])
+                ->getUrl('b2bquotes/quote/view', ['id' => $quoteId, '_nosid' => true]),
+            // No secret key: it would be minted for this request, not the reader's admin session.
+            'admin_url' => $this->backendUrl->getUrl('tonyapps_b2bquotes/quote/edit', ['id' => $quoteId, '_nosid' => true, '_nosecret' => true]),
+        ] + $this->quoteVars($quote);
     }
 
     /**

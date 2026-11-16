@@ -8,6 +8,7 @@ use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\Mail\Template\TransportBuilder;
 use Magento\Framework\Mail\TransportInterface;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
+use Magento\Framework\Url;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 use PHPUnit\Framework\TestCase;
@@ -36,7 +37,13 @@ class NotifierTest extends TestCase
         $config->method('getSellerTemplate')->willReturn('seller_template');
         $config->method('getSellerEmail')->willReturn('sales@example.com');
         $store = $this->createMock(Store::class);
-        $store->method('getUrl')->willReturn('https://shop/quote/9');
+        $store->expects(self::never())->method('getUrl');
+        // The buyer's link comes from the storefront builder for the quote's store, also when a seller acts in the admin.
+        $frontendUrl = $this->createMock(Url::class);
+        $frontendUrl->expects(self::once())->method('setScope')->with(1)->willReturnSelf();
+        $frontendUrl->expects(self::once())->method('getUrl')
+            ->with('b2bquotes/quote/view', ['id' => 9, '_nosid' => true])
+            ->willReturn('https://shop/b2bquotes/quote/view/id/9/');
         $storeManager = $this->createMock(StoreManagerInterface::class);
         $storeManager->method('getStore')->willReturn($store);
         $currency = $this->createMock(PriceCurrencyInterface::class);
@@ -66,7 +73,8 @@ class NotifierTest extends TestCase
             $storeManager,
             $this->createMock(LoggerInterface::class),
             $currency,
-            $backendUrl
+            $backendUrl,
+            $frontendUrl
         ))->toSeller(9, 'New quote request');
 
         self::assertSame([[
@@ -77,6 +85,7 @@ class NotifierTest extends TestCase
         self::assertSame('—', $vars['offer_subtotal']);
         self::assertFalse($vars['has_offer']);
         self::assertSame('https://shop/admin/quote/9', $vars['admin_url']);
+        self::assertSame('https://shop/b2bquotes/quote/view/id/9/', $vars['quote_url']);
         self::assertSame('Price for two packs?', $vars['comment']);
     }
 }
