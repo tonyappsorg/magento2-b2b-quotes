@@ -2,7 +2,7 @@
 
 Read this before changing the module. Workspace-wide rules are in ../AGENTS.md.
 
-Package `tonyapps/module-b2b-quotes` v0.1.0, proprietary. Negotiable quotes for `Tonyapps_B2b` company accounts on
+Package `tonyapps/module-b2b-quotes` v0.1.0, GPL-3.0-or-later. Negotiable quotes for `Tonyapps_B2b` company accounts on
 Magento Open Source (Adobe sells this only in Commerce B2B, `Magento_NegotiableQuote`).
 
 Terminology: "quote" = the B2B price request (`tonyapps_b2b_quote`). Magento's own `quote` table, the cart, is called
@@ -185,6 +185,8 @@ vendor/bin/phpunit -c dev/tests/unit/phpunit.xml.dist app/code/Tonyapps/B2bQuote
 
 ## Change history
 
+- **2026-11-16** — Released as free software under GPL-3.0-or-later (owner decision): `LICENSE` added,
+  `composer.json` license changed from `proprietary`, License section in the README.
 ### 2026-11-15 storefront links in admin-sent emails
 Built in an admin request (including the Email Designer preview), `quote_url` in the buyer email after a seller action came out as an admin link with a secret key, because `Store::getUrl()` uses the area's `UrlInterface`. `Notifier` now builds storefront links with its own non-shared `Magento\Framework\Url` (`frontendUrl`, `etc/di.xml`) scoped to the email's store; tests in `NotifierTest`.
 

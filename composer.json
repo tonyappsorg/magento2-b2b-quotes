@@ -3,7 +3,7 @@
   "description": "Negotiable price quotes for Tonyapps B2B company accounts",
   "type": "magento2-module",
   "version": "0.1.0",
-  "license": "proprietary",
+  "license": "GPL-3.0-or-later",
   "require": {
     "php": "~8.3.0||~8.4.0",
     "magento/framework": "*",
