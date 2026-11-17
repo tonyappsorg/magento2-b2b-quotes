@@ -21,7 +21,8 @@ $replyUrl = $block->getUrl('b2bquotes/quote/reply', ['id' => (int)$quote['entity
         <?php endif; ?>
     </p>
 
-    <table class="data table">
+    <div class="b2b-table-wrapper card mb-4">
+    <table class="data table w-full">
         <thead><tr>
             <th><?= $escaper->escapeHtml(__('Product')) ?></th>
             <th><?= $escaper->escapeHtml(__('SKU')) ?></th>
@@ -48,6 +49,7 @@ $replyUrl = $block->getUrl('b2bquotes/quote/reply', ['id' => (int)$quote['entity
             </tr>
         </tfoot>
     </table>
+    </div>
 
     <h3><?= $escaper->escapeHtml(__('History')) ?></h3>
     <ul class="b2b-quote-history">
@@ -67,7 +69,7 @@ $replyUrl = $block->getUrl('b2bquotes/quote/reply', ['id' => (int)$quote['entity
             <?php if ($count = $block->getCartItemCount()): ?>
                 <p><?= $escaper->escapeHtml(__('Your cart has %1 product(s). They will be replaced by the products of this quote.', $count)) ?></p>
             <?php endif; ?>
-            <button type="submit" class="action primary"><span><?= $escaper->escapeHtml(__('Checkout with This Quote')) ?></span></button>
+            <button type="submit" class="action primary btn btn-primary"><span><?= $escaper->escapeHtml(__('Checkout with This Quote')) ?></span></button>
         </form>
     <?php endif; ?>
 
@@ -75,15 +77,15 @@ $replyUrl = $block->getUrl('b2bquotes/quote/reply', ['id' => (int)$quote['entity
         <form action="<?= $escaper->escapeUrl($replyUrl) ?>" method="post">
             <?= $block->getBlockHtml('formkey') ?>
             <label for="b2b-quote-reply"><?= $escaper->escapeHtml(__('Comment for the seller')) ?></label>
-            <textarea id="b2b-quote-reply" name="comment" rows="3" maxlength="2000" required></textarea>
-            <button type="submit" class="action secondary">
+            <textarea class="form-input w-full" id="b2b-quote-reply" name="comment" rows="3" maxlength="2000" required></textarea>
+            <button type="submit" class="action secondary btn btn-secondary">
                 <span><?= $escaper->escapeHtml($status === 'open' ? __('Send Comment') : __('Send Back to Seller')) ?></span>
             </button>
         </form>
         <form action="<?= $escaper->escapeUrl($replyUrl) ?>" method="post">
             <?= $block->getBlockHtml('formkey') ?>
             <input type="hidden" name="close" value="1"/>
-            <button type="submit" class="action secondary"><span><?= $escaper->escapeHtml(__('Close Quote')) ?></span></button>
+            <button type="submit" class="action secondary btn btn-secondary"><span><?= $escaper->escapeHtml(__('Close Quote')) ?></span></button>
         </form>
     <?php endif; ?>
 </div>

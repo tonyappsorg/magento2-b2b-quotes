@@ -1,0 +1,30 @@
+@source "../templates/**/*.phtml";
+
+.b2b-quotes-list .b2b-table-wrapper,
+.b2b-quote-view .b2b-table-wrapper {
+    @apply overflow-x-auto;
+}
+
+.b2b-quotes-list table.data.table,
+.b2b-quote-view table.data.table {
+    @apply min-w-full border-collapse text-left;
+}
+
+.b2b-quotes-list table.data.table th,
+.b2b-quote-view table.data.table th {
+    @apply whitespace-nowrap px-2 py-2 text-left text-sm font-semibold;
+}
+
+.b2b-quotes-list table.data.table td,
+.b2b-quote-view table.data.table td {
+    @apply px-2 py-2 align-top;
+}
+
+.b2b-quotes-list table.data.table tbody tr:nth-child(even),
+.b2b-quote-view table.data.table tbody tr:nth-child(even) {
+    @apply bg-gray-100;
+}
+
+.b2b-quote-view table.data.table tfoot {
+    @apply border-t border-gray-300 font-semibold;
+}

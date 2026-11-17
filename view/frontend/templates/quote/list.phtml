@@ -7,7 +7,8 @@ $quotes = $block->getQuotes();
 ?>
 <div class="b2b-quotes-list">
     <?php if ($quotes): ?>
-        <table class="data table">
+        <div class="b2b-table-wrapper card mb-4">
+        <table class="data table w-full">
             <thead><tr>
                 <th><?= $escaper->escapeHtml(__('Quote')) ?></th>
                 <?php if ($block->isCompanyView()): ?><th><?= $escaper->escapeHtml(__('Buyer')) ?></th><?php endif; ?>
@@ -31,13 +32,14 @@ $quotes = $block->getQuotes();
             <?php endforeach; ?>
             </tbody>
         </table>
+        </div>
         <?php if ($block->getPreviousPageUrl() || $block->getNextPageUrl()): ?>
             <div class="actions-toolbar">
                 <?php if ($url = $block->getPreviousPageUrl()): ?>
-                    <a class="action previous" href="<?= $escaper->escapeUrl($url) ?>"><?= $escaper->escapeHtml(__('Previous')) ?></a>
+                    <a class="action previous btn btn-secondary" href="<?= $escaper->escapeUrl($url) ?>"><?= $escaper->escapeHtml(__('Previous')) ?></a>
                 <?php endif; ?>
                 <?php if ($url = $block->getNextPageUrl()): ?>
-                    <a class="action next" href="<?= $escaper->escapeUrl($url) ?>"><?= $escaper->escapeHtml(__('Next')) ?></a>
+                    <a class="action next btn btn-secondary" href="<?= $escaper->escapeUrl($url) ?>"><?= $escaper->escapeHtml(__('Next')) ?></a>
                 <?php endif; ?>
             </div>
         <?php endif; ?>

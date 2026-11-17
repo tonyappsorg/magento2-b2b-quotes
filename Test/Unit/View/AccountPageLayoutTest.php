@@ -17,4 +17,27 @@ class AccountPageLayoutTest extends TestCase
             self::assertSame('false', (string)$layout->xpath('//block[@name="' . $block . '"]')[0]['cacheable'], $file);
         }
     }
+
+    public function testQuoteTemplatesUseHyvaButtonsAndTailwindSource(): void
+    {
+        $root = dirname(__DIR__, 3);
+        foreach ([
+            'quote/list.phtml' => ['w-full'],
+            'quote/view.phtml' => ['w-full', 'btn-primary', 'form-input'],
+            'cart/request-quote.phtml' => ['btn-primary', 'btn-secondary'],
+        ] as $template => $classes) {
+            $contents = file_get_contents($root . '/view/frontend/templates/' . $template);
+            foreach ($classes as $class) {
+                self::assertStringContainsString($class, $contents, $template);
+            }
+        }
+        self::assertStringContainsString(
+            '@source "../templates/**/*.phtml"',
+            file_get_contents($root . '/view/frontend/tailwind/module.css')
+        );
+        $styles = file_get_contents($root . '/view/frontend/tailwind/module.css');
+        self::assertStringContainsString('px-2 py-2 text-left text-sm font-semibold', $styles);
+        self::assertStringContainsString('tbody tr:nth-child(even)', $styles);
+        self::assertStringContainsString('b2b-table-wrapper card mb-4', file_get_contents($root . '/view/frontend/templates/quote/list.phtml'));
+    }
 }

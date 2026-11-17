@@ -2,7 +2,7 @@
 
 Read this before changing the module. Workspace-wide rules are in ../AGENTS.md.
 
-Package `tonyapps/module-b2b-quotes` 1.0.0, GPL-3.0-or-later. Negotiable quotes for `Tonyapps_B2b` company accounts on
+Package `tonyapps/module-b2b-quotes` 1.0.1, GPL-3.0-or-later. Negotiable quotes for `Tonyapps_B2b` company accounts on
 Magento Open Source (Adobe sells this only in Commerce B2B, `Magento_NegotiableQuote`).
 
 Terminology: "quote" = the B2B price request (`tonyapps_b2b_quote`). Magento's own `quote` table, the cart, is called
@@ -14,6 +14,7 @@ Terminology: "quote" = the B2B price request (`tonyapps_b2b_quote`). Magento's o
 - Phases 1 and 2 built 2026-11-03. 2026-11-09: QA fix, admin UX and email redesign (see Change history).
 - **Phase 3 (manual QA) pending.**
 - **Phase 4 (sales reps and commission): scope draft 2026-11-09, awaiting owner approval. Not built.**
+- **Hyvä storefront styling verified 2026-11-17:** cart request action and customer quote pages use Hyvä button and table styles.
 
 Phases:
 
@@ -184,6 +185,11 @@ vendor/bin/phpunit -c dev/tests/unit/phpunit.xml.dist app/code/Tonyapps/B2bQuote
   PHPUnit config).
 
 ## Change history
+
+- **2026-11-17 — Hyvä storefront styling:** Added Hyvä classes to the cart quote action, quote list, quote details and
+  reply controls; styled quote tables to match the Hyvä My Orders card and zebra rows; registered the module's storefront
+  templates as Tailwind sources. Covered by computed-style assertions in
+  `e2e/tests/hyva-b2b-styling.spec.js`.
 
 - **2026-11-16** — Released as free software under GPL-3.0-or-later (owner decision): `LICENSE` added,
   `composer.json` license changed from `proprietary`, License section in the README.

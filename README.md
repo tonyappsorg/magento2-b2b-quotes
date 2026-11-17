@@ -64,6 +64,8 @@ Emails as sent (Luma theme, 2026-11-09). Source images are in `docs/emails/`.
 - The admin quote list is a simple paged list without filters or sorting.
 - If you use Tonyapps B2B Order Approval, a quoted cart above the approval threshold still needs approval. Tonyapps
   Free Gift rules still apply to a quoted cart.
+- The cart request action and customer quote pages support Luma and Hyvä storefronts. Checkout uses the store's
+  configured checkout integration.
 
 ## Requirements
 
